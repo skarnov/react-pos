@@ -1,17 +1,22 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import './App.css';
+import AddProduct from './pages/AddProduct';
 import Dashboard from './pages/Dashboard';
-import FooterNav from './pages/FooterNav';
-import NavBar from './pages/NavBar';
+import ManageProducts from './pages/ManageProducts';
 
 function App() {
   return (
 
     <>
-      <NavBar />
-      <Dashboard />
-      <FooterNav />
 
+      <BrowserRouter>
+        <Routes>
+          <Route path='/' element={<Dashboard />} />
+          <Route path='/add_product' element={<AddProduct />} />
+          <Route path='/manage_products' element={<ManageProducts />} />
+        </Routes>
+      </BrowserRouter>
 
     </>
 
