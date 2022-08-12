@@ -3,7 +3,6 @@ import Navbar from 'react-bootstrap/Navbar';
 
 function FooterNav() {
     return (
-
         <>
             <Container fluid>
                 <Navbar fixed="bottom">
@@ -17,7 +16,6 @@ function FooterNav() {
                 </Navbar>
             </Container>
         </>
-
     )
 }
 
