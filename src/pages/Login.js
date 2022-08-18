@@ -8,20 +8,6 @@ import FooterNav from './FooterNav';
 import NavBar from './NavBar';
 
 function Login() {
-  // const [name, setName] = useState('');
-
-  // async function saveProduct() {
-  //   const formData = new FormData();
-
-  //   formData.append('name', name);
-  //   let result = await fetch("http://localhost/laravel-pos/public/api/saveProduct", {
-  //     method: 'POST',
-  //     body: formData
-
-  //   });
-  //   alert('Save The Product');
-  // }
-
   return (
     <>
       <Container fluid>

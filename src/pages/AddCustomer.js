@@ -9,11 +9,13 @@ import NavBar from './NavBar';
 
 function AddCustomer() {
   const [name, setName] = useState('');
+  const [file, setFile] = useState('');
 
   async function saveCustomer() {
     const formData = new FormData();
 
     formData.append('name', name);
+    formData.append('file', file);
     let result = await fetch("http://localhost/laravel-pos/public/api/saveCustomer", {
       method: 'POST',
       body: formData
@@ -41,10 +43,8 @@ function AddCustomer() {
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Profile Image</Form.Label>
-              <Form.Control type="file" onChange={(e) => setName(e.target.value)} />
+              <Form.Control type="file" onChange={(e) => setFile(e.target.files[0])} />
             </Form.Group>
-
-
 
             <Button className='btn btn-sm' onClick={saveCustomer} variant="success" type="submit">
               Save
