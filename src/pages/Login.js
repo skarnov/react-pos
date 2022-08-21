@@ -1,13 +1,24 @@
-// import { useState } from 'react';
+import { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
+import AuthUser from './AuthUser';
 import FooterNav from './FooterNav';
 import NavBar from './NavBar';
 
 function Login() {
+  const { http } = AuthUser();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const submitForm = () => {
+    http.post('/login', { email: email, password: password }).then((res) => {
+      console.log(res.data);
+    })
+  }
+
   return (
     <>
       <Container fluid>
@@ -21,14 +32,14 @@ function Login() {
         <Row>
           <Col sm={12}>
             <Form.Group className="mb-3">
-              <Form.Label>Username</Form.Label>
-              <Form.Control type="text" placeholder="Enter Your Username" />
+              <Form.Label>Email</Form.Label>
+              <Form.Control type="text" onChange={e => setEmail(e.target.value)} placeholder="Enter Your Username" />
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Password</Form.Label>
-              <Form.Control type="password" placeholder="Enter Your Password" />
+              <Form.Control type="password" onChange={e => setPassword(e.target.value)} placeholder="Enter Your Password" />
             </Form.Group>
-            <Button className='btn btn-sm' variant="primary" type="submit">
+            <Button className='btn btn-sm' onClick={submitForm} variant="primary" type="submit">
               Login
             </Button>
           </Col>
