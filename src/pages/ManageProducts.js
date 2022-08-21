@@ -4,7 +4,7 @@ import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Table from 'react-bootstrap/Table';
-import FooterNav from './FooterNav';
+import FooterNav from '../components/FooterNav';
 import NavBar from './NavBar';
 
 function ManageProduct() {

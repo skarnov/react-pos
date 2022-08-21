@@ -4,28 +4,32 @@ import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
-import AuthUser from './AuthUser';
-import FooterNav from './FooterNav';
-import NavBar from './NavBar';
+import AuthUser from '../components/AuthUser';
+import FooterNav from '../components/FooterNav';
+import Dashboard from '../pages/Dashboard';
 
 function Login() {
-  const { http } = AuthUser();
+  const { getToken, http, setToken } = AuthUser();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const submitForm = () => {
     http.post('/login', { email: email, password: password }).then((res) => {
-      console.log(res.data);
+      setToken(res.data.user, res.data.access_token);
     })
+  }
+
+  /* Check If Already Logged In */
+  if (getToken()) {
+    return <Dashboard />
   }
 
   return (
     <>
       <Container fluid>
-        <NavBar />
-        <Row className='mt-5'>
+        <Row>
           <Col sm={12}>
-            <h4 className='mt-4'>Login</h4>
+            <h4 className='mt-4'>React POS Login</h4>
             <hr />
           </Col>
         </Row>
