@@ -3,7 +3,16 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import { Link } from "react-router-dom";
+import AuthUser from './AuthUser';
+
 function NavBar() {
+    const { token, logout } = AuthUser();
+    const logoutUser = () => {
+        if (token != undefined) {
+            logout();
+        }
+    }
+
     return (
         <>
             <Navbar fixed="top" bg='dark' variant='dark' expand="lg">
@@ -32,7 +41,7 @@ function NavBar() {
                             <NavDropdown title="Profile" id="basic-nav-dropdown">
                                 <NavDropdown.Item as={Link} to="/edit_user">Edit Profile</NavDropdown.Item>
                                 <NavDropdown.Divider />
-                                <NavDropdown.Item as={Link} to="/logout">Logout</NavDropdown.Item>
+                                <NavDropdown.Item as={Link} to="/logout" onClick={logoutUser}>Logout</NavDropdown.Item>
                             </NavDropdown>
                         </Nav>
                     </Navbar.Collapse>

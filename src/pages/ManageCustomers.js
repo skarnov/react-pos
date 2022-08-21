@@ -6,7 +6,7 @@ import Row from 'react-bootstrap/Row';
 import Table from 'react-bootstrap/Table';
 import { Link } from "react-router-dom";
 import FooterNav from '../components/FooterNav';
-import NavBar from './NavBar';
+import NavBar from '../components/NavBar';
 
 function ManageCustomers() {
 

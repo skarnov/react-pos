@@ -5,7 +5,7 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Table from 'react-bootstrap/Table';
 import FooterNav from '../components/FooterNav';
-import NavBar from './NavBar';
+import NavBar from '../components/NavBar';
 
 function SearchProduct() {
 

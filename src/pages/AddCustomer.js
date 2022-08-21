@@ -5,7 +5,7 @@ import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import FooterNav from '../components/FooterNav';
-import NavBar from './NavBar';
+import NavBar from '../components/NavBar';
 
 function AddCustomer() {
   const [name, setName] = useState('');
