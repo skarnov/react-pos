@@ -16,11 +16,15 @@ function AddCustomer() {
 
     formData.append('name', name);
     formData.append('file', file);
+    
     let result = await fetch("http://localhost/laravel-pos/public/api/saveCustomer", {
       method: 'POST',
       body: formData
 
     });
+
+
+    
     alert('Save The Customer');
   }
 

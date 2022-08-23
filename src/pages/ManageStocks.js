@@ -24,7 +24,7 @@ function ManageProduct() {
         <NavBar />
         <Row className='mt-5'>
           <Col sm={12}>
-            <h4 className='mt-4'>Manage Products</h4>
+            <h4 className='mt-4'>Manage Stocks</h4>
             <hr />
           </Col>
         </Row>
@@ -34,7 +34,7 @@ function ManageProduct() {
 
             <Col md={3}>
               <Form.Group className="mb-3">
-                <Form.Control type="text" placeholder="Search Product Name" />
+                <Form.Control type="text" placeholder="Search Stock Name" />
               </Form.Group>
             </Col>
 
