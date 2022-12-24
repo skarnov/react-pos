@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Button from 'react-bootstrap/Button';
+import Alert from 'react-bootstrap/Alert';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
@@ -12,11 +13,18 @@ function Login() {
   const { getToken, http, setToken } = AuthUser();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const submitForm = () => {
-    http.post('/login', { email: email, password: password }).then((res) => {
-      setToken(res.data.user, res.data.access_token);
-    })
+    http.post('/login', { email: email, password: password })
+      .then((res) => {
+        setToken(res.data.user, res.data.access_token);
+      })
+      .catch(function (error) {
+        if (error.response) {
+          setErrorMessage('Invalid Credentials!');
+        }
+      })
   }
 
   /* Check If Already Logged In */
@@ -43,6 +51,12 @@ function Login() {
               <Form.Label>Password</Form.Label>
               <Form.Control type="password" onChange={e => setPassword(e.target.value)} placeholder="Enter Your Password" />
             </Form.Group>
+            {errorMessage && (
+              <Alert variant="danger">
+                <Alert.Heading>{errorMessage}</Alert.Heading>
+                <p>Check your Email and Password</p>
+              </Alert>
+            )}
             <Button className='btn btn-sm' onClick={submitForm} variant="primary" type="submit">
               Login
             </Button>
