@@ -20,9 +20,12 @@ function Login() {
       .then((res) => {
         setToken(res.data.user, res.data.access_token);
       })
-      .catch(function (error) {
-        if (error.response) {
-          setErrorMessage('Invalid Credentials!');
+      .catch(function (err) {
+        var validationErrors = JSON.stringify(err.response.data.errors);
+        var validationErrorsArray = JSON.parse(validationErrors);
+
+        for (var k in validationErrorsArray) {
+          setErrorMessage(validationErrorsArray[k]);
         }
       })
   }
@@ -54,7 +57,6 @@ function Login() {
             {errorMessage && (
               <Alert variant="danger">
                 <Alert.Heading>{errorMessage}</Alert.Heading>
-                <p>Check your Email and Password</p>
               </Alert>
             )}
             <Button className='btn btn-sm' onClick={submitForm} variant="primary" type="submit">
