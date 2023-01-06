@@ -11,23 +11,27 @@ import AuthUser from '../components/AuthUser';
 
 function AddProduct() {
   const { http } = AuthUser();
-
+  const [ButtonText, setButtonText] = useState('Save');
   const [name, setName] = useState('');
-  const [file, setFile] = useState('');
-
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
   const saveProduct = () => {
-    http.post('/saveProduct', { name: name, file: file })
+    setButtonText('Processing..');
+    http.post('/saveProduct', { name: name })
       .then(function (response) {
-        setSuccessMessage('Saved!');
+        setButtonText('Save');
+        setSuccessMessage('Product Saved!');
       })
-      .catch(function (error) {
-        console.log(error);
-        setErrorMessage('Please enter product information properly');
-      })
+      .catch(function (err) {
+        setButtonText('Save');
+        var validationErrors = JSON.stringify(err.response.data.errors);
+        var validationErrorsArray = JSON.parse(validationErrors);
 
+        for (var k in validationErrorsArray) {
+          setErrorMessage(validationErrorsArray[k]);
+        }
+      })
   }
 
   return (
@@ -46,25 +50,18 @@ function AddProduct() {
               <Form.Label>Name</Form.Label>
               <Form.Control type="text" onChange={(e) => setName(e.target.value)} placeholder="Enter Product Name" />
             </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Image</Form.Label>
-              <Form.Control type="file" onChange={(e) => setFile(e.target.files[0])} />
-            </Form.Group>
-
             {errorMessage && (
               <Alert variant="danger">
                 <Alert.Heading>{errorMessage}</Alert.Heading>
               </Alert>
             )}
-
             {successMessage && (
               <Alert variant="success">
                 <Alert.Heading>{successMessage}</Alert.Heading>
               </Alert>
             )}
-
             <Button className='btn btn-sm' onClick={saveProduct} variant="success" type="submit">
-              Save
+              {ButtonText}
             </Button>
           </Col>
         </Row>

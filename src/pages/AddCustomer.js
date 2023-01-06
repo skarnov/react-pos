@@ -45,9 +45,10 @@ function AddCustomer() {
               <Form.Label>Customer Name</Form.Label>
               <Form.Control type="text" onChange={(e) => setName(e.target.value)} placeholder="Enter Customer Name" />
             </Form.Group>
+            
             <Form.Group className="mb-3">
-              <Form.Label>Profile Image</Form.Label>
-              <Form.Control type="file" onChange={(e) => setFile(e.target.files[0])} />
+              <Form.Label>Mobile Number</Form.Label>
+              <Form.Control type="text" onChange={(e) => setName(e.target.value)} placeholder="Enter Mobile Number" />
             </Form.Group>
 
             <Button className='btn btn-sm' onClick={saveCustomer} variant="success" type="submit">

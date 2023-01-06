@@ -11,16 +11,19 @@ import Dashboard from '../pages/Dashboard';
 
 function Login() {
   const { getToken, http, setToken } = AuthUser();
+  const [ButtonText, setButtonText] = useState('Login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
   const submitForm = () => {
+    setButtonText('Processing..');
     http.post('/login', { email: email, password: password })
       .then((res) => {
         setToken(res.data.user, res.data.access_token);
       })
       .catch(function (err) {
+        setButtonText('Login');
         var validationErrors = JSON.stringify(err.response.data.errors);
         var validationErrorsArray = JSON.parse(validationErrors);
 
@@ -60,7 +63,7 @@ function Login() {
               </Alert>
             )}
             <Button className='btn btn-sm' onClick={submitForm} variant="primary" type="submit">
-              Login
+              {ButtonText}
             </Button>
           </Col>
         </Row>

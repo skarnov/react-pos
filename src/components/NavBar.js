@@ -28,17 +28,19 @@ function NavBar() {
                             <NavDropdown title="Stock" id="basic-nav-dropdown">
                                 <NavDropdown.Item as={Link} to="/add_stock">Add Stock</NavDropdown.Item>
                                 <NavDropdown.Item as={Link} to="/manage_stocks">Stock Management</NavDropdown.Item>
-                                <NavDropdown.Item as={Link} to="/filter_stocks">Filter Stocks</NavDropdown.Item>
                             </NavDropdown>
                             <NavDropdown title="Customers" id="basic-nav-dropdown">
                                 <NavDropdown.Item as={Link} to="/add_customer">Add Customer</NavDropdown.Item>
                                 <NavDropdown.Item as={Link} to="/manage_customers">Customer Management</NavDropdown.Item>
-                                <NavDropdown.Item as={Link} to="/filter_customers">Filter Customers</NavDropdown.Item>
                             </NavDropdown>
                             <NavDropdown title="Sales" id="basic-nav-dropdown">
                                 <NavDropdown.Item as={Link} to="/add_sale">New Sale</NavDropdown.Item>
                                 <NavDropdown.Item as={Link} to="/manage_sales">Sales Management</NavDropdown.Item>
-                                <NavDropdown.Item as={Link} to="/filter_sales">Filter Sales</NavDropdown.Item>
+                            </NavDropdown>
+                            <NavDropdown title="Business Analysis" id="basic-nav-dropdown">
+                                <NavDropdown.Item as={Link} to="/add_sale">Stock Report</NavDropdown.Item>
+                                <NavDropdown.Item as={Link} to="/add_sale">Sales Analysis</NavDropdown.Item>
+                                <NavDropdown.Item as={Link} to="/add_sale">Income Growth</NavDropdown.Item>
                             </NavDropdown>
                             <NavDropdown title="Profile" id="basic-nav-dropdown">
                                 <NavDropdown.Item as={Link} to="/edit_user">Edit Profile</NavDropdown.Item>

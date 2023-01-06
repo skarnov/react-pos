@@ -34,42 +34,35 @@ function AddStock() {
         </Row>
         <Row>
           <Col sm={12}>
-
             <Form.Group className="mb-3">
               <Form.Label>Select Product</Form.Label>
-              <Form.Control type="text" onChange={(e) => setName(e.target.value)} />
+              <Form.Select>
+                <option>Open this select menu</option>
+                <option value="1">One</option>
+                <option value="2">Two</option>
+                <option value="3">Three</option>
+              </Form.Select>
             </Form.Group>
-
             <Form.Group className="mb-3">
               <Form.Label>Barcode</Form.Label>
-              <Form.Control type="text" onChange={(e) => setName(e.target.value)} placeholder="Product Barcode" />
+              <Form.Control type="text" onChange={(e) => setName(e.target.value)} placeholder="Enter Product Barcode" />
             </Form.Group>
-
             <Form.Group className="mb-3">
-              <Form.Label>Batch Number</Form.Label>
-              <Form.Control type="text" onChange={(e) => setName(e.target.value)} placeholder="Product Batch Number" />
+              <Form.Label>Stock Keeping Unit / Batch Number</Form.Label>
+              <Form.Control type="text" onChange={(e) => setName(e.target.value)} placeholder="Enter Product Batch Number" />
             </Form.Group>
-
             <Form.Group className="mb-3">
               <Form.Label>Buy Price</Form.Label>
-              <Form.Control type="decimal" onChange={(e) => setName(e.target.value)} placeholder="Product Buy Price" />
+              <Form.Control type="decimal" onChange={(e) => setName(e.target.value)} placeholder="Enter Product Buy Price" />
             </Form.Group>
-            
             <Form.Group className="mb-3">
               <Form.Label>Sale Price</Form.Label>
-              <Form.Control type="decimal" onChange={(e) => setName(e.target.value)} placeholder="Product Sale Price" />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Quantity</Form.Label>
-              <Form.Control type="decimal" onChange={(e) => setName(e.target.value)} placeholder="Product Quantity" />
+              <Form.Control type="decimal" onChange={(e) => setName(e.target.value)} placeholder="Enter Product Sale Price" />
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Quantity</Form.Label>
-              <Form.Control type="date" onChange={(e) => setName(e.target.value)} placeholder="Stock Entry Date" />
+              <Form.Control type="number" onChange={(e) => setName(e.target.value)} placeholder="Enter Product Quantity" />
             </Form.Group>
-
-
             <Button className='btn btn-sm' onClick={saveProduct} variant="success" type="submit">
               Save
             </Button>

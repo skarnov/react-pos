@@ -7,16 +7,18 @@ import Row from 'react-bootstrap/Row';
 import Table from 'react-bootstrap/Table';
 import FooterNav from '../components/FooterNav';
 import NavBar from '../components/NavBar';
+import AuthUser from '../components/AuthUser';
 
 function ManageProduct() {
-
+  const { http } = AuthUser();
   const [data, setData] = useState([]);
 
-  useEffect(async () => {
-    let result = await fetch("http://localhost/laravel-pos/public/api/manageProduct");
-    result = await result.json();
-    setData(result)
-  }, [])
+  useEffect(() => {
+    http.post('/manageProduct')
+      .then((res) => {
+        setData(res.data);
+      });
+  }, []);
 
   return (
     <>
@@ -28,42 +30,37 @@ function ManageProduct() {
             <hr />
           </Col>
         </Row>
-
         <Row>
           <Col sm={12}>
-
             <Col md={3}>
               <Form.Group className="mb-3">
                 <Form.Control type="text" placeholder="Search Product Name" />
               </Form.Group>
             </Col>
-
             <Table responsive>
               <thead>
                 <tr>
-                  <th>SL</th>
+                  <th>ID</th>
                   <th>Name</th>
-                  <th>Image</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody>
-                {
-                  data.map((item) =>
-                    <tr>
-                      <td>{item.id}</td>
-                      <td>{item.name}</td>
-                      <td>
-                        <Button className='btn btn-sm' variant="primary" type="button">
-                          Edit
-                        </Button>
-                        {' '}
-                        <Button className='btn btn-sm' variant="danger" type="button">
-                          Delete
-                        </Button>
-                      </td>
-                    </tr>
-                  )
+                {data.map((item) =>
+                  <tr>
+                    <td>{item.id}</td>
+                    <td>{item.name}</td>
+                    <td>
+                      <Button className='btn btn-sm' variant="primary" type="button">
+                        Edit
+                      </Button>
+                      {' '}
+                      <Button className='btn btn-sm' variant="danger" type="button">
+                        Delete
+                      </Button>
+                    </td>
+                  </tr>
+                )
                 }
               </tbody>
             </Table>
