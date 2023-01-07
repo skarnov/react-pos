@@ -10,6 +10,9 @@ import NavBar from '../components/NavBar';
 function AddStock() {
   const [name, setName] = useState('');
 
+
+
+
   async function saveProduct() {
     const formData = new FormData();
 

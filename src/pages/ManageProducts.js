@@ -14,11 +14,14 @@ function ManageProduct() {
   const [data, setData] = useState([]);
 
   useEffect(() => {
+
     http.post('/manageProduct')
       .then((res) => {
         setData(res.data);
       });
   }, []);
+
+  
 
   return (
     <>
