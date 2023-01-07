@@ -29,14 +29,14 @@ function AddSale() {
         <NavBar />
         <Row className='mt-5'>
           <Col sm={12}>
-            <h4 className='mt-4'>Add Product</h4>
+            <h4 className='mt-4'>Sales</h4>
             <hr />
           </Col>
         </Row>
         <Row>
           <Col sm={4}>
             <Form.Group className="mb-3">
-              <Form.Label>Select Product</Form.Label>
+              <Form.Label>Select Stock</Form.Label>
               <Form.Select>
                 <option>Open this select menu</option>
                 <option value="1">One</option>
@@ -100,7 +100,13 @@ function AddSale() {
 
             <p>Total Due:</p>
             <p>Total Price:</p>
-            <p>Discount:</p>
+            
+            <Form.Group className="mb-3">
+              <Form.Label>Discount</Form.Label>
+              <Form.Control type="text" onChange={(e) => setName(e.target.value)} placeholder="Enter Discount Amount" />
+            </Form.Group>
+
+
             <p>Grand Total:</p>
             <Form.Group className="mb-3">
               <Form.Label>Paid Amount</Form.Label>

@@ -39,8 +39,10 @@ function NavBar() {
                             </NavDropdown>
                             <NavDropdown title="Business Analysis" id="basic-nav-dropdown">
                                 <NavDropdown.Item as={Link} to="/add_sale">Stock Report</NavDropdown.Item>
+                                <NavDropdown.Item as={Link} to="/add_sale">Stock Popularity</NavDropdown.Item>
                                 <NavDropdown.Item as={Link} to="/add_sale">Sales Analysis</NavDropdown.Item>
                                 <NavDropdown.Item as={Link} to="/add_sale">Income Growth</NavDropdown.Item>
+                                <NavDropdown.Item as={Link} to="/add_sale">Customer Ranking</NavDropdown.Item>
                             </NavDropdown>
                             <NavDropdown title="Profile" id="basic-nav-dropdown">
                                 <NavDropdown.Item as={Link} to="/edit_user">Edit Profile</NavDropdown.Item>
