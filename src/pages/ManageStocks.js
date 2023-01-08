@@ -37,6 +37,11 @@ function ManageProduct() {
                 <Form.Control type="text" placeholder="Search Stock Name" />
               </Form.Group>
             </Col>
+            <Col md={3}>
+              <Form.Group className="mb-3">
+                <Form.Control type="text" placeholder="Search Stock ID" />
+              </Form.Group>
+            </Col>
 
             <Table responsive>
               <thead>
