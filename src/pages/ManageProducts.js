@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
+import { Link } from "react-router-dom";
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
@@ -16,16 +17,16 @@ function ManageProduct() {
   const [filterData, setFilterdata] = useState([]);
   const [query, setQuery] = useState('');
 
-  useEffect( ()=>{
-    const getData= async()=>{      
+  useEffect(() => {
+    const getData = async () => {
       http.post('/manageProduct')
-      .then((res) => {
-        setData(res.data);
-        setFilterdata(res.data);
-      });
+        .then((res) => {
+          setData(res.data);
+          setFilterdata(res.data);
+        });
     }
     getData();
-  },[]);
+  }, []);
 
   const handleSearch = (event) => {
     const getSearch = event.target.value;
@@ -69,9 +70,11 @@ function ManageProduct() {
                     <td>{item.id}</td>
                     <td>{item.name}</td>
                     <td>
-                      <Button className='btn btn-sm' variant="primary" type="button">
-                        Edit
-                      </Button>
+                      <Link to={"/edit_product/" + item.id}>
+                        <Button className='btn btn-sm' variant="primary" type="button">
+                          Edit
+                        </Button>
+                      </Link>
                       {' '}
                       <Button className='btn btn-sm' variant="danger" type="button">
                         Delete

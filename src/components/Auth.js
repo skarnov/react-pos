@@ -1,7 +1,12 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Route, Routes } from "react-router-dom";
-import AddCustomer from '../pages/AddCustomer';
+
 import AddProduct from '../pages/AddProduct';
+import ManageProducts from '../pages/ManageProducts';
+import EditProduct from '../pages/EditProduct';
+
+import AddCustomer from '../pages/AddCustomer';
+
 import AddSale from '../pages/AddSale';
 import AddStock from '../pages/AddStock';
 import Dashboard from '../pages/Dashboard';
@@ -10,7 +15,7 @@ import FilterSales from '../pages/FilterSales';
 import FilterStocks from '../pages/FilterStocks';
 import Login from '../pages/Login';
 import ManageCustomers from '../pages/ManageCustomers';
-import ManageProducts from '../pages/ManageProducts';
+
 import ManageSales from '../pages/ManageSales';
 import ManageStocks from '../pages/ManageStocks';
 import NavBar from './NavBar';
@@ -23,6 +28,9 @@ function Auth() {
                 <Route path='/' element={<Login />} />
                 <Route path='/dashboard' element={<Dashboard />} />
                 <Route path='/add_product' element={<AddProduct />} />
+                <Route path='/edit_product/:id' element={<EditProduct />} />
+
+
                 <Route path='/manage_products' element={<ManageProducts />} />
                 <Route path='/add_stock' element={<AddStock />} />
                 <Route path='/manage_stocks' element={<ManageStocks />} />
