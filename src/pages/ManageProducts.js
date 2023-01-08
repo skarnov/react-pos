@@ -13,15 +13,30 @@ function ManageProduct() {
   const { http } = AuthUser();
   const [data, setData] = useState([]);
 
-  useEffect(() => {
+  const [filterData, setFilterdata] = useState([]);
+  const [query, setQuery] = useState('');
 
-    http.post('/manageProduct')
+  useEffect( ()=>{
+    const getData= async()=>{      
+      http.post('/manageProduct')
       .then((res) => {
         setData(res.data);
+        setFilterdata(res.data);
       });
-  }, []);
+    }
+    getData();
+  },[]);
 
-  
+  const handleSearch = (event) => {
+    const getSearch = event.target.value;
+    if (getSearch.length > 0) {
+      const searchData = data.filter((item) => item.name.toLowerCase().includes(getSearch));
+      setData(searchData);
+    } else {
+      setData(filterData);
+    }
+    setQuery(getSearch);
+  }
 
   return (
     <>
@@ -37,7 +52,7 @@ function ManageProduct() {
           <Col sm={12}>
             <Col md={3}>
               <Form.Group className="mb-3">
-                <Form.Control type="text" placeholder="Search Product Name" />
+                <Form.Control type="text" value={query} onChange={(e) => handleSearch(e)} placeholder="Search Product Name" />
               </Form.Group>
             </Col>
             <Table responsive>
