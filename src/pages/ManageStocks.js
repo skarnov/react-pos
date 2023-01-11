@@ -7,16 +7,38 @@ import Row from 'react-bootstrap/Row';
 import Table from 'react-bootstrap/Table';
 import FooterNav from '../components/FooterNav';
 import NavBar from '../components/NavBar';
+import AuthUser from '../components/AuthUser';
 
-function ManageProduct() {
+function ManageStock() {
 
+  const { http } = AuthUser();
   const [data, setData] = useState([]);
 
-  useEffect(async () => {
-    let result = await fetch("http://localhost/laravel-pos/public/api/manageProduct");
-    result = await result.json();
-    setData(result)
-  }, [])
+  const [filterData, setFilterdata] = useState([]);
+  const [query, setQuery] = useState('');
+
+  useEffect(() => {
+    const getData = async () => {
+      http.post('/manageStock')
+        .then((res) => {
+          setData(res.data);
+          setFilterdata(res.data);
+        });
+    }
+    getData();
+  }, []);
+
+  const handleSearch = (event) => {
+    const getSearch = event.target.value;
+    if (getSearch.length > 0) {
+      const searchData = data.filter((item) => item.name.toLowerCase().includes(getSearch));
+      setData(searchData);
+    } else {
+      setData(filterData);
+    }
+    setQuery(getSearch);
+  }
+
 
   return (
     <>
@@ -28,28 +50,24 @@ function ManageProduct() {
             <hr />
           </Col>
         </Row>
-
         <Row>
           <Col sm={12}>
-
             <Col md={3}>
               <Form.Group className="mb-3">
-                <Form.Control type="text" placeholder="Search Stock Name" />
+                <Form.Control type="text" value={query} onChange={(e) => handleSearch(e)} placeholder="Search Stock ID, Stock Name" />
               </Form.Group>
             </Col>
-            <Col md={3}>
-              <Form.Group className="mb-3">
-                <Form.Control type="text" placeholder="Search Stock ID" />
-              </Form.Group>
-            </Col>
-
-            <Table responsive>
+            <Table responsive bordered>
               <thead>
                 <tr>
-                  <th>SL</th>
+                  <th>ID</th>
                   <th>Name</th>
-                  <th>Image</th>
-                  <th>Action</th>
+                  <th>Barcode</th>
+                  <th>SKU</th>
+                  <th className='text-end'>Buy Price</th>
+                  <th className='text-end'>Sale Price</th>
+                  <th className='text-end'>Quantity</th>
+                  <th className='text-end'>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -58,7 +76,12 @@ function ManageProduct() {
                     <tr>
                       <td>{item.id}</td>
                       <td>{item.name}</td>
-                      <td>
+                      <td>{item.barcode}</td>
+                      <td>{item.sku}</td>
+                      <td className='text-end'>{item.buy_price}</td>
+                      <td className='text-end'>{item.sale_price}</td>
+                      <td className='text-end'>{item.quantity}</td>
+                      <td className='text-end'>
                         <Button className='btn btn-sm' variant="primary" type="button">
                           Edit
                         </Button>
@@ -80,4 +103,4 @@ function ManageProduct() {
   );
 }
 
-export default ManageProduct;
+export default ManageStock;

@@ -11,8 +11,8 @@ import AuthUser from '../components/AuthUser';
 
 function AddProduct() {
   const { http } = AuthUser();
-  const [ButtonText, setButtonText] = useState('Save');
   const [name, setName] = useState('');
+  const [ButtonText, setButtonText] = useState('Save');
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
