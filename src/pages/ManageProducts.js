@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { Link } from "react-router-dom";
-import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
-import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import Modal from 'react-bootstrap/Modal';
+import Alert from 'react-bootstrap/Alert';
+import Form from 'react-bootstrap/Form';
 import Table from 'react-bootstrap/Table';
 import FooterNav from '../components/FooterNav';
 import NavBar from '../components/NavBar';
@@ -14,17 +16,43 @@ function ManageProduct() {
   const { http } = AuthUser();
   const [data, setData] = useState([]);
 
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
   const [filterData, setFilterdata] = useState([]);
   const [query, setQuery] = useState('');
 
+  const [show, setShow] = useState(false);
+  const [id, setId] = useState('');
+
+  const closeDeleteModal = () => setShow(false);
+  const showDeleteModal = (id) => {
+    setShow(true);
+    setId(id);
+  };
+
+  const getData = async () => {
+    http.post('/manageProduct')
+      .then((res) => {
+        setData(res.data);
+        setFilterdata(res.data);
+      });
+  }
+
+  const deleteTheItem = (id) => {
+    http.post('/deleteProduct/' + id)
+      .then((res) => {
+        setSuccessMessage(res.data.msg);
+        setShow(false);
+        getData();
+      })
+      .catch(function (err) {
+        setErrorMessage(err.response.data.msg);
+        setShow(false);
+      })
+  };
+
   useEffect(() => {
-    const getData = async () => {
-      http.post('/manageProduct')
-        .then((res) => {
-          setData(res.data);
-          setFilterdata(res.data);
-        });
-    }
     getData();
   }, []);
 
@@ -56,6 +84,16 @@ function ManageProduct() {
                 <Form.Control type="text" value={query} onChange={(e) => handleSearch(e)} placeholder="Search Product Name" />
               </Form.Group>
             </Col>
+            {errorMessage && (
+              <Alert variant="danger">
+                <Alert.Heading>{errorMessage}</Alert.Heading>
+              </Alert>
+            )}
+            {successMessage && (
+              <Alert variant="success">
+                <Alert.Heading>{successMessage}</Alert.Heading>
+              </Alert>
+            )}
             <Table responsive>
               <thead>
                 <tr>
@@ -76,7 +114,7 @@ function ManageProduct() {
                         </Button>
                       </Link>
                       {' '}
-                      <Button className='btn btn-sm' variant="danger" type="button">
+                      <Button className='btn btn-sm' onClick={() => showDeleteModal(item.id)} variant="danger" type="button">
                         Delete
                       </Button>
                     </td>
@@ -89,6 +127,22 @@ function ManageProduct() {
         </Row>
         <FooterNav />
       </Container>
+
+      <Modal show={show} onHide={closeDeleteModal} backdrop="static" keyboard={false}>
+        <Modal.Header closeButton>
+          <Modal.Title>Delete Confirmation</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to delete this file?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="success" onClick={closeDeleteModal}>
+            No
+          </Button>
+          <Button variant="danger" onClick={() => deleteTheItem(id)}>Yes</Button>
+        </Modal.Footer>
+      </Modal>
+
     </>
   );
 }

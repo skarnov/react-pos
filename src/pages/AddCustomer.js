@@ -31,9 +31,11 @@ function AddCustomer() {
         var validationErrors = JSON.stringify(err.response.data.errors);
         var validationErrorsArray = JSON.parse(validationErrors);
 
-        for (var k in validationErrorsArray) {
-          setErrorMessage(validationErrorsArray[k]);
+        let errors = "";
+        for (let x in validationErrorsArray) {
+          errors += validationErrorsArray[x] + ' ';
         }
+        setErrorMessage(errors);
       })
   }
 

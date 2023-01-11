@@ -45,8 +45,6 @@ function AddStock() {
       .catch(function (err) {
         setButtonText('Save');
         
-console.warn(err);
-
         var validationErrors = JSON.stringify(err.response.data.errors);
         var validationErrorsArray = JSON.parse(validationErrors);
 
