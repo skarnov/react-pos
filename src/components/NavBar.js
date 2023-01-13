@@ -4,6 +4,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import { Link } from "react-router-dom";
 import AuthUser from './AuthUser';
+import jwt_decode from "jwt-decode";
 
 function NavBar() {
     const { token, logout } = AuthUser();
@@ -11,6 +12,12 @@ function NavBar() {
         if (token != undefined) {
             logout();
         }
+    }
+
+    let decodedToken = jwt_decode(token);
+    let currentDate = new Date();
+    if (decodedToken.exp * 1000 < currentDate.getTime()) {
+        logout();
     }
 
     return (
@@ -38,11 +45,11 @@ function NavBar() {
                                 <NavDropdown.Item as={Link} to="/manage_sales">Sales Management</NavDropdown.Item>
                             </NavDropdown>
                             <NavDropdown title="Business Analysis" id="basic-nav-dropdown">
-                                <NavDropdown.Item as={Link} to="/add_sale">Stock Report</NavDropdown.Item>
-                                <NavDropdown.Item as={Link} to="/add_sale">Stock Popularity</NavDropdown.Item>
-                                <NavDropdown.Item as={Link} to="/add_sale">Sales Analysis</NavDropdown.Item>
-                                <NavDropdown.Item as={Link} to="/add_sale">Income Growth</NavDropdown.Item>
-                                <NavDropdown.Item as={Link} to="/add_sale">Customer Ranking</NavDropdown.Item>
+                                <NavDropdown.Item as={Link} to="/stock_report">Stock Report</NavDropdown.Item>
+                                <NavDropdown.Item as={Link} to="/stock_popularity">Stock Popularity</NavDropdown.Item>
+                                <NavDropdown.Item as={Link} to="/sales_analysis">Sales Analysis</NavDropdown.Item>
+                                <NavDropdown.Item as={Link} to="/income_growth">Income Growth</NavDropdown.Item>
+                                <NavDropdown.Item as={Link} to="/customer_ranking">Customer Ranking</NavDropdown.Item>
                             </NavDropdown>
                             <NavDropdown title="Profile" id="basic-nav-dropdown">
                                 <NavDropdown.Item as={Link} to="/edit_user">Edit Profile</NavDropdown.Item>

@@ -26,14 +26,15 @@ function AddStock() {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    const getData = async () => {
-      http.post('/manageProduct')
-        .then((res) => {
-          setData(res.data);
-        });
-    }
     getData();
   }, []);
+
+  const getData = async () => {
+    http.post('/manageProduct')
+      .then((res) => {
+        setData(res.data);
+      });
+  }
 
   const saveStock = () => {
     setButtonText('Processing..');
@@ -44,7 +45,7 @@ function AddStock() {
       })
       .catch(function (err) {
         setButtonText('Save');
-        
+
         var validationErrors = JSON.stringify(err.response.data.errors);
         var validationErrorsArray = JSON.parse(validationErrors);
 

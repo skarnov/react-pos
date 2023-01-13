@@ -31,6 +31,10 @@ function ManageProduct() {
     setId(id);
   };
 
+  useEffect(() => {
+    getData();
+  }, []);
+
   const getData = async () => {
     http.post('/manageProduct')
       .then((res) => {
@@ -51,10 +55,6 @@ function ManageProduct() {
         setShow(false);
       })
   };
-
-  useEffect(() => {
-    getData();
-  }, []);
 
   const handleSearch = (event) => {
     const getSearch = event.target.value;

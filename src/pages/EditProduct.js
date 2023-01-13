@@ -23,14 +23,15 @@ function EditProduct() {
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
-    const DataInfo = async () => {
-      http.post('/selectProduct/' + id)
-        .then((res) => {
-          setEditData(res.data);
-        });
-    }
     DataInfo();
   }, []);
+
+  const DataInfo = async () => {
+    http.post('/selectProduct/' + id)
+      .then((res) => {
+        setEditData(res.data);
+      });
+  }
 
   const handleDataUpdate = () => {
     setButtonText('Processing..');

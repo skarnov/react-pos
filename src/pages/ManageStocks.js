@@ -31,6 +31,10 @@ function ManageStock() {
     setId(id);
   };
 
+  useEffect(() => {
+    getData();
+  }, []);
+
   const getData = async () => {
     http.post('/manageStock')
       .then((res) => {
@@ -51,10 +55,6 @@ function ManageStock() {
         setShow(false);
       })
   };
-
-  useEffect(() => {
-    getData();
-  }, []);
 
   const handleSearch = (event) => {
     const getSearch = event.target.value;

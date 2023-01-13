@@ -25,14 +25,15 @@ function EditStock() {
   const [editData, setEditData] = useState('');
 
   useEffect(() => {
-    const DataInfo = async () => {
-      http.post('/selectStock/' + id)
-        .then((res) => {
-          setEditData(res.data);
-        });
-    }
     DataInfo();
   }, []);
+
+  const DataInfo = async () => {
+    http.post('/selectStock/' + id)
+      .then((res) => {
+        setEditData(res.data);
+      });
+  }
 
   const handleDataUpdate = () => {
     setButtonText('Processing..');

@@ -31,6 +31,10 @@ function ManageCustomers() {
     setId(id);
   };
 
+  useEffect(() => {
+    getData();
+  }, []);
+
   const getData = async () => {
     http.post('/manageCustomer')
       .then((res) => {
@@ -51,10 +55,6 @@ function ManageCustomers() {
         setShow(false);
       })
   };
-
-  useEffect(() => {
-    getData();
-  }, []);
 
   const handleSearch = (event) => {
     const getSearch = event.target.value;

@@ -18,15 +18,16 @@ function ManageSales() {
   const [query, setQuery] = useState('');
 
   useEffect(() => {
-    const getData = async () => {
-      http.post('/manageSale')
-        .then((res) => {
-          setData(res.data);
-          setFilterdata(res.data);
-        });
-    }
     getData();
   }, []);
+
+  const getData = async () => {
+    http.post('/manageSale')
+      .then((res) => {
+        setData(res.data);
+        setFilterdata(res.data);
+      });
+  }
 
   const handleSearch = (event) => {
     const getSearch = event.target.value;
