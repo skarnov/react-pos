@@ -99,14 +99,16 @@ function ManageProduct() {
                 <tr>
                   <th>ID</th>
                   <th>Name</th>
+                  <th>Sale Count</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {data.map((item) =>
-                  <tr>
+                  <tr key={item.id}>
                     <td>{item.id}</td>
                     <td>{item.name}</td>
+                    <td>{item.sale_count}</td>
                     <td>
                       <Link to={"/edit_product/" + item.id}>
                         <Button className='btn btn-sm' variant="primary" type="button">
@@ -133,7 +135,7 @@ function ManageProduct() {
           <Modal.Title>Delete Confirmation</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          Are you sure you want to delete this file?
+          Are you sure you want to delete this Product?
         </Modal.Body>
         <Modal.Footer>
           <Button variant="success" onClick={closeDeleteModal}>

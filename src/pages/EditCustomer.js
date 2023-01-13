@@ -10,21 +10,22 @@ import FooterNav from '../components/FooterNav';
 import NavBar from '../components/NavBar';
 import AuthUser from '../components/AuthUser';
 
-function EditProduct() {
+function EditCustomer() {
   const { http } = AuthUser();
-  const [ButtonText, setButtonText] = useState('Update');
 
-  const { id } = useParams();
   const [name, setName] = useState('');
+  const [mobile, setMobile] = useState('');
 
-  const [editData, setEditData] = useState('');
-
+  const [ButtonText, setButtonText] = useState('Update');
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
+  const { id } = useParams();
+  const [editData, setEditData] = useState('');
+
   useEffect(() => {
     const DataInfo = async () => {
-      http.post('/selectProduct/' + id)
+      http.post('/selectCustomer/' + id)
         .then((res) => {
           setEditData(res.data);
         });
@@ -34,14 +35,17 @@ function EditProduct() {
 
   const handleDataUpdate = () => {
     setButtonText('Processing..');
-    http.post('/updateProduct', { id: id, name: name ? name : editData.name} )
+    http.post('/updateCustomer', {
+      id: id,
+      name: name ? name : editData.name,
+      mobile: mobile ? mobile : editData.mobile
+    })
       .then(function (response) {
         setButtonText('Update');
-        setSuccessMessage('Product Updated!');
+        setSuccessMessage('Customer Updated!');
       })
       .catch(function (err) {
         setButtonText('Update');
-
         var validationErrors = JSON.stringify(err.response.data.errors);
         var validationErrorsArray = JSON.parse(validationErrors);
 
@@ -57,16 +61,20 @@ function EditProduct() {
         <NavBar />
         <Row className='mt-5'>
           <Col sm={12}>
-            <h4 className='mt-4'>Edit The Product</h4>
+            <h4 className='mt-4'>Edit The Customer</h4>
             <hr />
           </Col>
         </Row>
         <Row>
-          <Col sm={12}>
+          <Col sm={6}>
             <Form.Group className="mb-3">
-              <Form.Label>Name</Form.Label>
+              <Form.Label>Customer Name</Form.Label>
               <Form.Control type="hidden" value={editData.id} />
               <Form.Control type="text" defaultValue={editData.name} onChange={(e) => setName(e.target.value)} />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Mobile Number</Form.Label>
+              <Form.Control type="text" defaultValue={editData.mobile} onChange={(e) => setMobile(e.target.value)} />
             </Form.Group>
             {errorMessage && (
               <Alert variant="danger">
@@ -89,4 +97,4 @@ function EditProduct() {
   );
 }
 
-export default EditProduct;
+export default EditCustomer;
