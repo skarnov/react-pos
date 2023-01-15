@@ -1,22 +1,53 @@
 import { useEffect, useState } from 'react';
-import Alert from 'react-bootstrap/Alert';
-import Button from 'react-bootstrap/Button';
-import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
-import Table from 'react-bootstrap/Table';
-import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
-import FooterNav from '../components/FooterNav';
 import NavBar from '../components/NavBar';
+import Col from 'react-bootstrap/Col';
+import Alert from 'react-bootstrap/Alert';
+import Form from 'react-bootstrap/Form';
+import Table from 'react-bootstrap/Table';
+import Button from 'react-bootstrap/Button';
+import FooterNav from '../components/FooterNav';
 import AuthUser from '../components/AuthUser';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function AddSale() {
   const { http } = AuthUser();
-
   const [stockData, setStockData] = useState([]);
   const [customerData, setCustomerData] = useState([]);
 
-  const [stock, setStock] = useState('');
+  const toastOptions = {
+    autoClose: 400,
+    pauseOnHover: true,
+  }
+
+  const [cart, setCart] = useState([]);
+  const [totalAmount, setTotalAmount] = useState(0);
+
+  const addProductToCart = async (stockId) => {
+      http.post('/selectStock/' + stockId)
+        .then((res) => {
+          if (res.data.quantity >= 1) {
+            let addingProduct = {
+              'id': res.data.id,
+              'name': res.data.name,
+              'quantity': 1,
+              'price': res.data.sale_price,
+              'subtotal': res.data.sale_price * 12
+            }
+            setCart([...cart, addingProduct]);
+          } else {
+            console.warn('NO cart');
+          }
+        });
+  }
+
+  const removeProduct = async (stockId) => {
+    console.warn(stockId);
+    toast(`${stockId}`, toastOptions)
+  }
+
   const [barcode, setBarcode] = useState('');
   const [sku, setSKU] = useState('');
   const [customer, setCustomer] = useState('');
@@ -32,6 +63,18 @@ function AddSale() {
     getStockData();
     getCustomerData();
   }, []);
+
+
+  // useEffect(() => {
+  //   let newTotalAmount = 0;
+  //   cart.forEach(icart => {
+  //     newTotalAmount = cart[0].subtotal + parseInt(icart.price);
+  //   })
+  //   setTotalAmount(newTotalAmount);
+  // },[cart])
+
+
+
 
   const getStockData = async () => {
     http.post('/manageStock')
@@ -50,7 +93,6 @@ function AddSale() {
   const saveSale = () => {
     setButtonText('Processing..');
     http.post('/saveSale', {
-      stock: stock,
       barcode: barcode,
       sku: sku,
       discount: discount,
@@ -89,8 +131,8 @@ function AddSale() {
           <Col sm={4}>
             <Form.Group className="mb-3">
               <Form.Label>Select Stock</Form.Label>
-              <Form.Select onChange={(e) => setStock(e.target.value)}>
-                <option value=''>Select One</option>
+              <Form.Select onChange={(e) => addProductToCart(e.target.value)}>
+                <option>Select One</option>
                 {stockData.map((item) =>
                   <option value={item.id} key={item.id}>{item.name}</option>
                 )}
@@ -109,26 +151,25 @@ function AddSale() {
             <Table striped bordered hover size="sm">
               <thead>
                 <tr>
-                  <th>Stock Name</th>
-                  <th>Sale Quantity</th>
-                  <th>Unit Price</th>
-                  <th>Subtotal</th>
-                  <th>Action</th>
+                  <th width="55%">Stock Name</th>
+                  <th width="10%">Quantity</th>
+                  <th width="10%">Unit</th>
+                  <th width="15%">Subtotal</th>
+                  <th className="text-end" width="10%">Action</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>1</td>
-                  <td>Mark</td>
-                  <td>Otto</td>
-                  <td>@mdo</td>
-                </tr>
-                <tr>
-                  <td>2</td>
-                  <td>Jacob</td>
-                  <td>Thornton</td>
-                  <td>@fat</td>
-                </tr>
+                {cart.length ? cart.map((cartProduct, key) =>
+                  <tr key={key}>
+                    <td>{cartProduct.name}</td>
+                    <td>{cartProduct.quantity}</td>
+                    <td>{cartProduct.price}</td>
+                    <td>{cartProduct.subtotal}</td>
+                    <td className="text-end">
+                      <button className='btn btn-danger btn-sm' onClick={() => removeProduct(cartProduct.id)}>Remove</button>
+                    </td>
+                  </tr>)
+                  : 'No Items in Cart'}
               </tbody>
             </Table>
           </Col>
@@ -148,7 +189,7 @@ function AddSale() {
               </Form.Select>
             </Form.Group>
             <p>Total Due:</p>
-            <p>Total Price:</p>
+            <p>Total Price: {totalAmount}</p>
             <Form.Group className="mb-3">
               <Form.Label>Discount</Form.Label>
               <Form.Control type="text" onChange={(e) => setDiscount(e.target.value)} />
@@ -172,6 +213,7 @@ function AddSale() {
               {ButtonText}
             </Button>
           </Col>
+          <ToastContainer />
         </Row>
         <FooterNav />
       </Container>
