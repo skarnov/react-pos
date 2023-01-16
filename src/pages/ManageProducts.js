@@ -1,27 +1,16 @@
 import { useEffect, useState } from 'react';
-import { Button } from 'react-bootstrap';
 import { Link } from "react-router-dom";
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import Modal from 'react-bootstrap/Modal';
-import Alert from 'react-bootstrap/Alert';
-import Form from 'react-bootstrap/Form';
-import Table from 'react-bootstrap/Table';
-import FooterNav from '../components/FooterNav';
-import NavBar from '../components/NavBar';
+import { Container, Row, Col, Modal, Button, Alert, Form, Table } from 'react-bootstrap';
 import AuthUser from '../components/AuthUser';
+import NavBar from '../components/NavBar';
+import FooterNav from '../components/FooterNav';
 
 function ManageProduct() {
   const { http } = AuthUser();
+  const [search, setSearch] = useState('');
   const [data, setData] = useState([]);
-
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-
-  const [filterData, setFilterdata] = useState([]);
-  const [query, setQuery] = useState('');
-
   const [show, setShow] = useState(false);
   const [id, setId] = useState('');
 
@@ -39,7 +28,6 @@ function ManageProduct() {
     http.post('/manageProduct')
       .then((res) => {
         setData(res.data);
-        setFilterdata(res.data);
       });
   }
 
@@ -56,17 +44,6 @@ function ManageProduct() {
       })
   };
 
-  const handleSearch = (event) => {
-    const getSearch = event.target.value;
-    if (getSearch.length > 0) {
-      const searchData = data.filter((item) => item.name.toLowerCase().includes(getSearch));
-      setData(searchData);
-    } else {
-      setData(filterData);
-    }
-    setQuery(getSearch);
-  }
-
   return (
     <>
       <Container fluid>
@@ -81,7 +58,7 @@ function ManageProduct() {
           <Col sm={12}>
             <Col md={3}>
               <Form.Group className="mb-3">
-                <Form.Control type="text" value={query} onChange={(e) => handleSearch(e)} placeholder="Search Product Name" />
+                <Form.Control type="text" onChange={(e) => setSearch(e.target.value)} placeholder="Search Product Name" />
               </Form.Group>
             </Col>
             {errorMessage && (
@@ -104,24 +81,30 @@ function ManageProduct() {
                 </tr>
               </thead>
               <tbody>
-                {data.map((item) =>
-                  <tr key={item.id}>
-                    <td>{item.id}</td>
-                    <td>{item.name}</td>
-                    <td>{item.sale_count}</td>
-                    <td>
-                      <Link to={"/edit_product/" + item.id}>
-                        <Button className='btn btn-sm' variant="primary" type="button">
-                          Edit
+                {data
+                  .filter((item) => {
+                    return search.toLowerCase() === ''
+                      ? item
+                      : item.name.toLowerCase().includes(search)
+                  })
+                  .map((item) =>
+                    <tr key={item.id}>
+                      <td>{item.id}</td>
+                      <td>{item.name}</td>
+                      <td>{item.sale_count}</td>
+                      <td>
+                        <Link to={"/edit_product/" + item.id}>
+                          <Button className='btn btn-sm' variant="primary" type="button">
+                            Edit
+                          </Button>
+                        </Link>
+                        {' '}
+                        <Button className='btn btn-sm' onClick={() => showDeleteModal(item.id)} variant="danger" type="button">
+                          Delete
                         </Button>
-                      </Link>
-                      {' '}
-                      <Button className='btn btn-sm' onClick={() => showDeleteModal(item.id)} variant="danger" type="button">
-                        Delete
-                      </Button>
-                    </td>
-                  </tr>
-                )
+                      </td>
+                    </tr>
+                  )
                 }
               </tbody>
             </Table>

@@ -14,67 +14,95 @@ import 'react-toastify/dist/ReactToastify.css';
 
 function AddSale() {
   const { http } = AuthUser();
+  const [loading, setLoading] = useState(false);
   const [stockData, setStockData] = useState([]);
   const [customerData, setCustomerData] = useState([]);
+  const [totalAmount, setTotalAmount] = useState(0);
+  const [discount, setDiscount] = useState(0);
+  const [paidBox, setPaidBox] = useState(false);
+  const [paid, setPaid] = useState(0);
+
+  let [cart, setCart] = useState(
+    JSON.parse(localStorage.getItem('cart')) || []
+  );
+
+  useEffect(() => {
+    localStorage.setItem('cart', JSON.stringify(cart));
+  }, [cart]);
+
+  const addProductToCart = async (stockId) => {
+    setLoading(true);
+    http.post('/selectStock/' + stockId)
+      .then((res) => {
+        if (res.data.quantity >= 1) {
+          let addToCart = {
+            'id': res.data.id,
+            'name': res.data.name,
+            'quantity': 1,
+            'price': res.data.sale_price,
+            'subtotal': res.data.sale_price * 1
+          }
+          setCart([...cart, addToCart]);
+          setLoading(false);
+        }
+      });
+  }
+
+  const addProductToCartText = async (query) => {
+    setLoading(true);
+    http.post('/findStock/' + query)
+      .then((res) => {
+        if (res.data.quantity >= 1) {
+          let addToCart = {
+            'id': res.data.id,
+            'name': res.data.name,
+            'quantity': 1,
+            'price': res.data.sale_price,
+            'subtotal': res.data.sale_price * 1
+          }
+          setCart([...cart, addToCart]);
+          setLoading(false);
+        }
+      });
+  }
+
+  const removeProduct = async (stockId) => {
+    const newCart = cart.filter(cartItem => cartItem.id !== stockId);
+    setCart(newCart);
+  }
+
+  const [customerDue, setCustomerDue] = useState('');
+  const customerAllotment = async (customerId) => {
+    http.post('/selectCustomer/' + customerId)
+      .then((res) => {
+        setCustomerDue(res.data.sale_due);
+        setPaidBox(true);
+      });
+  }
+
+  const [customer, setCustomer] = useState('');
+
+  const [ButtonText, setButtonText] = useState('Confirm Sale');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const toastOptions = {
     autoClose: 400,
     pauseOnHover: true,
   }
 
-  const [cart, setCart] = useState([]);
-  const [totalAmount, setTotalAmount] = useState(0);
-
-  const addProductToCart = async (stockId) => {
-      http.post('/selectStock/' + stockId)
-        .then((res) => {
-          if (res.data.quantity >= 1) {
-            let addingProduct = {
-              'id': res.data.id,
-              'name': res.data.name,
-              'quantity': 1,
-              'price': res.data.sale_price,
-              'subtotal': res.data.sale_price * 12
-            }
-            setCart([...cart, addingProduct]);
-          } else {
-            console.warn('NO cart');
-          }
-        });
-  }
-
-  const removeProduct = async (stockId) => {
-    console.warn(stockId);
-    toast(`${stockId}`, toastOptions)
-  }
-
-  const [barcode, setBarcode] = useState('');
-  const [sku, setSKU] = useState('');
-  const [customer, setCustomer] = useState('');
-
-  const [discount, setDiscount] = useState('');
-  const [paid, setPaid] = useState('');
-
-  const [ButtonText, setButtonText] = useState('Confirm Sale');
-  const [successMessage, setSuccessMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
-
   useEffect(() => {
     getStockData();
     getCustomerData();
   }, []);
 
-
-  // useEffect(() => {
-  //   let newTotalAmount = 0;
-  //   cart.forEach(icart => {
-  //     newTotalAmount = cart[0].subtotal + parseInt(icart.price);
-  //   })
-  //   setTotalAmount(newTotalAmount);
-  // },[cart])
-
-
-
+  useEffect(() => {
+    let newTotalAmount = 0;
+    for (let x in cart) {
+      newTotalAmount = cart[x]['subtotal'] + newTotalAmount;
+    }
+    setTotalAmount(newTotalAmount);
+  }, [cart])
 
   const getStockData = async () => {
     http.post('/manageStock')
@@ -93,8 +121,6 @@ function AddSale() {
   const saveSale = () => {
     setButtonText('Processing..');
     http.post('/saveSale', {
-      barcode: barcode,
-      sku: sku,
       discount: discount,
       paid: paid,
       customer: customer
@@ -139,12 +165,8 @@ function AddSale() {
               </Form.Select>
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Barcode</Form.Label>
-              <Form.Control type="text" onChange={(e) => setBarcode(e.target.value)} />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Stock Keeping Unit / Batch Number</Form.Label>
-              <Form.Control type="text" onChange={(e) => setSKU(e.target.value)} />
+              <Form.Label>Barcode / Stock Keeping Unit / Batch Number</Form.Label>
+              <Form.Control type="text" onClick={(e) => addProductToCartText(e.target.value)} />
             </Form.Group>
           </Col>
           <Col sm={8}>
@@ -158,19 +180,21 @@ function AddSale() {
                   <th className="text-end" width="10%">Action</th>
                 </tr>
               </thead>
-              <tbody>
-                {cart.length ? cart.map((cartProduct, key) =>
-                  <tr key={key}>
-                    <td>{cartProduct.name}</td>
-                    <td>{cartProduct.quantity}</td>
-                    <td>{cartProduct.price}</td>
-                    <td>{cartProduct.subtotal}</td>
-                    <td className="text-end">
-                      <button className='btn btn-danger btn-sm' onClick={() => removeProduct(cartProduct.id)}>Remove</button>
-                    </td>
-                  </tr>)
-                  : 'No Items in Cart'}
-              </tbody>
+              {loading ? 'Loading...' :
+                <tbody>
+                  {cart ? cart.map((cartProduct, key) =>
+                    <tr key={key}>
+                      <td>{cartProduct.name}</td>
+                      <td>{cartProduct.quantity}</td>
+                      <td>{cartProduct.price}</td>
+                      <td>{cartProduct.subtotal}</td>
+                      <td className="text-end">
+                        <button className='btn btn-danger btn-sm' onClick={() => removeProduct(cartProduct.id)}>Remove</button>
+                      </td>
+                    </tr>)
+                    : 'No Items in Cart'}
+                </tbody>
+              }
             </Table>
           </Col>
         </Row>
@@ -179,26 +203,30 @@ function AddSale() {
 
           </Col>
           <Col sm={4}>
+            <h5 style={{ borderBottom: '1px solid black' }} className='mb-3'>Total Price: <strong>{totalAmount}</strong></h5>
+            <Form.Group className="mb-3">
+              <Form.Label>Discount</Form.Label>
+              <Form.Control type="text" onChange={(e) => setDiscount(e.target.value)} />
+            </Form.Group>
+            <h5 style={{ borderBottom: '1px solid black' }} className='mb-3'>Grand Total: <strong>{totalAmount - discount}</strong></h5>
             <Form.Group className="mb-3">
               <Form.Label>Select Customer</Form.Label>
-              <Form.Select onChange={(e) => setCustomer(e.target.value)}>
+              <Form.Select onChange={(e) => customerAllotment(e.target.value)}>
                 <option value=''>Anonymous Customer</option>
                 {customerData.map((item) =>
                   <option value={item.id} key={item.id}>{item.name}</option>
                 )}
               </Form.Select>
             </Form.Group>
-            <p>Total Due:</p>
-            <p>Total Price: {totalAmount}</p>
-            <Form.Group className="mb-3">
-              <Form.Label>Discount</Form.Label>
-              <Form.Control type="text" onChange={(e) => setDiscount(e.target.value)} />
-            </Form.Group>
-            <p>Grand Total:</p>
-            <Form.Group className="mb-3">
-              <Form.Label>Paid Amount</Form.Label>
-              <Form.Control type="text" onChange={(e) => setPaid(e.target.value)} />
-            </Form.Group>
+            {customerDue ?
+              <p>Total Due: <strong>{customerDue ? customerDue : 0.00}</strong></p>
+              : ''}
+            {paidBox ?
+              <Form.Group className="mb-3">
+                <Form.Label>Paid Amount</Form.Label>
+                <Form.Control type="text" defaultValue={paid} onChange={(e) => setPaid(e.target.value)} />
+              </Form.Group>
+              : ''}
             {errorMessage && (
               <Alert variant="danger">
                 <Alert.Heading>{errorMessage}</Alert.Heading>
@@ -209,6 +237,7 @@ function AddSale() {
                 <Alert.Heading>{successMessage}</Alert.Heading>
               </Alert>
             )}
+            <p>Total Items : <strong>{cart.length}</strong></p>
             <Button className='btn btn-sm' onClick={saveSale} variant="success" type="submit">
               {ButtonText}
             </Button>
