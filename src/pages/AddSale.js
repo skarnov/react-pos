@@ -14,7 +14,6 @@ import 'react-toastify/dist/ReactToastify.css';
 
 function AddSale() {
   const { http } = AuthUser();
-  const [loading, setLoading] = useState(false);
   const [stockData, setStockData] = useState([]);
   const [customerData, setCustomerData] = useState([]);
   const [totalAmount, setTotalAmount] = useState(0);
@@ -31,25 +30,97 @@ function AddSale() {
   }, [cart]);
 
   const addProductToCart = async (stockId) => {
-    setLoading(true);
     http.post('/selectStock/' + stockId)
       .then((res) => {
-        if (res.data.quantity >= 1) {
-          let addToCart = {
-            'id': res.data.id,
-            'name': res.data.name,
-            'quantity': 1,
-            'price': res.data.sale_price,
-            'subtotal': res.data.sale_price * 1
+        if (cart.length) {
+          if (res.data.quantity >= 1) {
+
+            setCart(
+              cart.map(
+                cart =>
+                  cart.id == stockId ? {
+                    ...cart,
+                    'id': res.data.id,
+                    'name': res.data.name,
+                    'quantity': cart.quantity + 1,
+                    'price': res.data.sale_price,
+                    'subtotal': res.data.sale_price * (cart.quantity + 1)
+                  }
+                    : {
+                      ...cart,
+                      'id': res.data.id,
+                      'name': res.data.name,
+                      'quantity': 1,
+                      'price': res.data.sale_price,
+                      'subtotal': res.data.sale_price * 1
+                    }
+              )
+            )
           }
-          setCart([...cart, addToCart]);
-          setLoading(false);
+        } else {
+          if (res.data.quantity >= 1) {
+            let addToCart = {
+              'id': res.data.id,
+              'name': res.data.name,
+              'quantity': 1,
+              'price': res.data.sale_price,
+              'subtotal': res.data.sale_price * 1
+            }
+            setCart([...cart, addToCart])
+          }
         }
+
       });
   }
 
+  // const addProductToCart = async (stockId) => {
+  //   http.post('/selectStock/' + stockId)
+  //     .then((res) => {
+  //       if (cart.length) {
+  //         if (res.data.quantity >= 1) {
+
+  //           let newItem = {
+  //             'id': res.data.id,
+  //             'name': res.data.name,
+  //             'quantity': 1,
+  //             'price': res.data.sale_price,
+  //             'subtotal': res.data.sale_price * 1
+  //           };
+
+  //           setCart(
+  //             cart.map(
+  //               cart =>
+  //                 cart.id == stockId
+  //                   ? {
+  //                     ...cart,
+  //                     'id': res.data.id,
+  //                     'name': res.data.name,
+  //                     'quantity': cart.quantity + 1,
+  //                     'price': res.data.sale_price,
+  //                     'subtotal': res.data.sale_price * (cart.quantity + 1)
+  //                   }
+  //                   :
+  //                   cart
+  //             )
+  //           )
+  //         }
+  //       } else {
+  //         if (res.data.quantity >= 1) {
+  //           let addToCart = {
+  //             'id': res.data.id,
+  //             'name': res.data.name,
+  //             'quantity': 1,
+  //             'price': res.data.sale_price,
+  //             'subtotal': res.data.sale_price * 1
+  //           }
+  //           setCart([...cart, addToCart])
+  //         }
+  //       }
+
+  //     });
+  // }
+
   const addProductToCartText = async (query) => {
-    setLoading(true);
     http.post('/findStock/' + query)
       .then((res) => {
         if (res.data.quantity >= 1) {
@@ -61,7 +132,6 @@ function AddSale() {
             'subtotal': res.data.sale_price * 1
           }
           setCart([...cart, addToCart]);
-          setLoading(false);
         }
       });
   }
@@ -180,21 +250,21 @@ function AddSale() {
                   <th className="text-end" width="10%">Action</th>
                 </tr>
               </thead>
-              {loading ? 'Loading...' :
-                <tbody>
-                  {cart ? cart.map((cartProduct, key) =>
-                    <tr key={key}>
-                      <td>{cartProduct.name}</td>
-                      <td>{cartProduct.quantity}</td>
-                      <td>{cartProduct.price}</td>
-                      <td>{cartProduct.subtotal}</td>
-                      <td className="text-end">
-                        <button className='btn btn-danger btn-sm' onClick={() => removeProduct(cartProduct.id)}>Remove</button>
-                      </td>
-                    </tr>)
-                    : 'No Items in Cart'}
-                </tbody>
-              }
+              {/* {loading ? 'Loading...' : */}
+              <tbody>
+                {cart ? cart.map((cartProduct, key) =>
+                  <tr key={key}>
+                    <td>{cartProduct.name}</td>
+                    <td>{cartProduct.quantity}</td>
+                    <td>{cartProduct.price}</td>
+                    <td>{cartProduct.subtotal}</td>
+                    <td className="text-end">
+                      <button className='btn btn-danger btn-sm' onClick={() => removeProduct(cartProduct.id)}>Remove</button>
+                    </td>
+                  </tr>)
+                  : 'No Items in Cart'}
+              </tbody>
+              {/* } */}
             </Table>
           </Col>
         </Row>
