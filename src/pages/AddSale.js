@@ -1,19 +1,19 @@
 import { useEffect, useState } from 'react';
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import NavBar from '../components/NavBar';
-import Col from 'react-bootstrap/Col';
-import Alert from 'react-bootstrap/Alert';
-import Form from 'react-bootstrap/Form';
-import Table from 'react-bootstrap/Table';
-import Button from 'react-bootstrap/Button';
-import FooterNav from '../components/FooterNav';
+import { Container, Row, Col, Button, Alert, Form, Table } from 'react-bootstrap';
 import AuthUser from '../components/AuthUser';
+import NavBar from '../components/NavBar';
+import FooterNav from '../components/FooterNav';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 function AddSale() {
+  const toastOptions = {
+    autoClose: 400,
+    pauseOnHover: true,
+  }
   const { http } = AuthUser();
+  const [loading, setLoading] = useState('Loading...');
+  let [cart, setCart] = useState([]);
   const [stockData, setStockData] = useState([]);
   const [customerData, setCustomerData] = useState([]);
   const [totalAmount, setTotalAmount] = useState(0);
@@ -21,161 +21,22 @@ function AddSale() {
   const [paidBox, setPaidBox] = useState(false);
   const [paid, setPaid] = useState(0);
 
-  let [cart, setCart] = useState(
-    JSON.parse(localStorage.getItem('cart')) || []
-  );
-
   useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(cart));
-  }, [cart]);
-
-  const addProductToCart = async (stockId) => {
-    http.post('/selectStock/' + stockId)
-      .then((res) => {
-        if (cart.length) {
-          if (res.data.quantity >= 1) {
-
-            setCart(
-              cart.map(
-                cart =>
-                  cart.id == stockId ? {
-                    ...cart,
-                    'id': res.data.id,
-                    'name': res.data.name,
-                    'quantity': cart.quantity + 1,
-                    'price': res.data.sale_price,
-                    'subtotal': res.data.sale_price * (cart.quantity + 1)
-                  }
-                    : {
-                      ...cart,
-                      'id': res.data.id,
-                      'name': res.data.name,
-                      'quantity': 1,
-                      'price': res.data.sale_price,
-                      'subtotal': res.data.sale_price * 1
-                    }
-              )
-            )
-          }
-        } else {
-          if (res.data.quantity >= 1) {
-            let addToCart = {
-              'id': res.data.id,
-              'name': res.data.name,
-              'quantity': 1,
-              'price': res.data.sale_price,
-              'subtotal': res.data.sale_price * 1
-            }
-            setCart([...cart, addToCart])
-          }
-        }
-
-      });
-  }
-
-  // const addProductToCart = async (stockId) => {
-  //   http.post('/selectStock/' + stockId)
-  //     .then((res) => {
-  //       if (cart.length) {
-  //         if (res.data.quantity >= 1) {
-
-  //           let newItem = {
-  //             'id': res.data.id,
-  //             'name': res.data.name,
-  //             'quantity': 1,
-  //             'price': res.data.sale_price,
-  //             'subtotal': res.data.sale_price * 1
-  //           };
-
-  //           setCart(
-  //             cart.map(
-  //               cart =>
-  //                 cart.id == stockId
-  //                   ? {
-  //                     ...cart,
-  //                     'id': res.data.id,
-  //                     'name': res.data.name,
-  //                     'quantity': cart.quantity + 1,
-  //                     'price': res.data.sale_price,
-  //                     'subtotal': res.data.sale_price * (cart.quantity + 1)
-  //                   }
-  //                   :
-  //                   cart
-  //             )
-  //           )
-  //         }
-  //       } else {
-  //         if (res.data.quantity >= 1) {
-  //           let addToCart = {
-  //             'id': res.data.id,
-  //             'name': res.data.name,
-  //             'quantity': 1,
-  //             'price': res.data.sale_price,
-  //             'subtotal': res.data.sale_price * 1
-  //           }
-  //           setCart([...cart, addToCart])
-  //         }
-  //       }
-
-  //     });
-  // }
-
-  const addProductToCartText = async (query) => {
-    http.post('/findStock/' + query)
-      .then((res) => {
-        if (res.data.quantity >= 1) {
-          let addToCart = {
-            'id': res.data.id,
-            'name': res.data.name,
-            'quantity': 1,
-            'price': res.data.sale_price,
-            'subtotal': res.data.sale_price * 1
-          }
-          setCart([...cart, addToCart]);
-        }
-      });
-  }
-
-  const removeProduct = async (stockId) => {
-    const newCart = cart.filter(cartItem => cartItem.id !== stockId);
-    setCart(newCart);
-  }
-
-  const [customerDue, setCustomerDue] = useState('');
-  const customerAllotment = async (customerId) => {
-    http.post('/selectCustomer/' + customerId)
-      .then((res) => {
-        setCustomerDue(res.data.sale_due);
-        setPaidBox(true);
-      });
-  }
-
-  const [customer, setCustomer] = useState('');
-
-  const [ButtonText, setButtonText] = useState('Confirm Sale');
-  const [successMessage, setSuccessMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
-
-  const toastOptions = {
-    autoClose: 400,
-    pauseOnHover: true,
-  }
-
-  useEffect(() => {
+    getCart();
     getStockData();
     getCustomerData();
   }, []);
 
-  useEffect(() => {
-    let newTotalAmount = 0;
-    for (let x in cart) {
-      newTotalAmount = cart[x]['subtotal'] + newTotalAmount;
-    }
-    setTotalAmount(newTotalAmount);
-  }, [cart])
+  const getCart = async () => {
+    http.post('/cart')
+      .then((res) => {
+        setCart(res.data);
+        setLoading(false);
+      });
+  }
 
   const getStockData = async () => {
-    http.post('/manageStock')
+    http.post('/availableStock')
       .then((res) => {
         setStockData(res.data);
       });
@@ -188,28 +49,90 @@ function AddSale() {
       });
   }
 
+  const addProductToCart = async (stockId) => {
+    http.post('/selectCart/' + stockId)
+      .then((res) => {
+        setCart(res.data);
+        toast('Added To Cart', toastOptions);
+      });
+  }
+
+  const addProductToCartText = async (query) => {
+    http.post('/findStock/' + query)
+      .then((res) => {
+        setCart(res.data);
+        toast('Added To Cart', toastOptions);
+      })
+      .catch(function (err) {
+        toast(err.response.data.msg);
+      })
+  }
+
+  let [quantity, setquantity] = useState();
+
+  const increaseQuantity = async (stockId) => {
+    http.post('/updateCartIncrease/' + stockId)
+      .then((res) => {
+        setCart(res.data);
+        toast('Updated Cart Quantity!');
+      });
+  }
+
+  const decreaseQuantity = async (stockId) => {
+    http.post('/updateCartDecrease/' + stockId)
+      .then((res) => {
+        setCart(res.data);
+        toast('Updated Cart Quantity!');
+      });
+  }
+
+  useEffect(() => {
+    let newTotalAmount = 0;
+    for (let x in cart) {
+      newTotalAmount = cart[x]['quantity'] * cart[x]['unit'] + newTotalAmount;
+    }
+    setTotalAmount(newTotalAmount);
+  }, [cart])
+
+  const removeProduct = async (stockId) => {
+    http.post('/deleteCart/' + stockId)
+      .then((res) => {
+        setCart(res.data);
+        toast('Removed Stock!', toastOptions);
+      });
+  }
+
+  const [customerDue, setCustomerDue] = useState('');
+  const [customer, setCustomer] = useState('');
+  const customerAllotment = async (customerId) => {
+    http.post('/selectCustomer/' + customerId)
+      .then((res) => {
+        setCustomerDue(res.data.sale_due);
+        setPaidBox(true);
+        setCustomer(customerId);
+      });
+  }
+
+  const [isDisabled, setDisabled] = useState(false);
+  const [ButtonText, setButtonText] = useState('Confirm Sale');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
   const saveSale = () => {
     setButtonText('Processing..');
     http.post('/saveSale', {
       discount: discount,
+      customer: customer,
       paid: paid,
-      customer: customer
     })
       .then(function () {
-        setButtonText('Confirmed Sale');
-        setSuccessMessage('Stock Saved!');
+        setDisabled(true);
+        setButtonText('Confirmed Sold');
+        setSuccessMessage('Sold!');
       })
       .catch(function (err) {
         setButtonText('Confirm Sale');
-
-        var validationErrors = JSON.stringify(err.response.data.errors);
-        var validationErrorsArray = JSON.parse(validationErrors);
-
-        let errors = "";
-        for (let x in validationErrorsArray) {
-          errors += validationErrorsArray[x] + ' ';
-        }
-        setErrorMessage(errors);
+        setErrorMessage(err.response.data.msg);
       })
   }
 
@@ -228,7 +151,7 @@ function AddSale() {
             <Form.Group className="mb-3">
               <Form.Label>Select Stock</Form.Label>
               <Form.Select onChange={(e) => addProductToCart(e.target.value)}>
-                <option>Select One</option>
+                <option value="">Select One</option>
                 {stockData.map((item) =>
                   <option value={item.id} key={item.id}>{item.name}</option>
                 )}
@@ -236,36 +159,47 @@ function AddSale() {
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Barcode / Stock Keeping Unit / Batch Number</Form.Label>
-              <Form.Control type="text" onClick={(e) => addProductToCartText(e.target.value)} />
+              <Form.Control type="text" onChange={(e) => addProductToCartText(e.target.value)} />
             </Form.Group>
           </Col>
           <Col sm={8}>
-            <Table striped bordered hover size="sm">
-              <thead>
-                <tr>
-                  <th width="55%">Stock Name</th>
-                  <th width="10%">Quantity</th>
-                  <th width="10%">Unit</th>
-                  <th width="15%">Subtotal</th>
-                  <th className="text-end" width="10%">Action</th>
-                </tr>
-              </thead>
-              {/* {loading ? 'Loading...' : */}
-              <tbody>
-                {cart ? cart.map((cartProduct, key) =>
-                  <tr key={key}>
-                    <td>{cartProduct.name}</td>
-                    <td>{cartProduct.quantity}</td>
-                    <td>{cartProduct.price}</td>
-                    <td>{cartProduct.subtotal}</td>
-                    <td className="text-end">
-                      <button className='btn btn-danger btn-sm' onClick={() => removeProduct(cartProduct.id)}>Remove</button>
-                    </td>
-                  </tr>)
-                  : 'No Items in Cart'}
-              </tbody>
-              {/* } */}
-            </Table>
+            {loading ? 'Loading...' :
+              <Table striped bordered hover size="sm">
+                <thead>
+                  <tr>
+                    <th width="50%">Stock Name</th>
+                    <th width="15%">Quantity</th>
+                    <th width="10%">Unit</th>
+                    <th width="15%">Subtotal</th>
+                    <th className="text-end" width="10%">Action</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {cart ? cart.map((cartProduct, key) =>
+                    <tr key={key}>
+                      <td>{cartProduct.name}</td>
+                      <td>
+                        <div className="input-group">
+                          <div className="input-group-prepend">
+                            <button className="btn btn-outline-primary" type="button" onClick={() => decreaseQuantity(cartProduct.fk_stock_id)}>-</button>
+                          </div>
+                          <input type="text" className="form-control" value={cartProduct.quantity} />
+                          <div className="input-group-prepend">
+                            <button className="btn btn-outline-primary" type="button" onClick={() => increaseQuantity(cartProduct.fk_stock_id)}>+</button>
+                          </div>
+                        </div>
+                      </td>
+                      <td>{cartProduct.unit}</td>
+                      <td>{cartProduct.quantity * cartProduct.unit}</td>
+                      <td className="text-end">
+                        <button className='btn btn-danger btn-sm' onClick={() => removeProduct(cartProduct.fk_stock_id)}>Remove</button>
+                      </td>
+                    </tr>)
+                    : 'No Items in Cart'}
+                </tbody>
+              </Table>
+            }
           </Col>
         </Row>
         <Row>
@@ -307,8 +241,7 @@ function AddSale() {
                 <Alert.Heading>{successMessage}</Alert.Heading>
               </Alert>
             )}
-            <p>Total Items : <strong>{cart.length}</strong></p>
-            <Button className='btn btn-sm' onClick={saveSale} variant="success" type="submit">
+            <Button className='btn btn-sm' disabled={isDisabled} onClick={saveSale} variant="success" type="submit">
               {ButtonText}
             </Button>
           </Col>

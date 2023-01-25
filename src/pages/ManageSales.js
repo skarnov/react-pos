@@ -75,7 +75,7 @@ function ManageSales() {
                 {data.map((item) =>
                   <tr>
                     <td>{item.id}</td>
-                    <td>{item.date}</td>
+                    <td>{item.created_date}</td>
                     <td className='text-end'>{item.income_amount}</td>
                     <td className='text-end'>{item.total}</td>
                     <td className='text-end'>{item.discount}</td>
@@ -86,6 +86,7 @@ function ManageSales() {
                       <Button className='btn btn-sm' variant="primary" type="button">
                         Invoice
                       </Button>
+                      {' '}
                       <Link to={"/edit_sale/" + item.id}>
                         <Button className='btn btn-sm' variant="primary" type="button">
                           Edit
