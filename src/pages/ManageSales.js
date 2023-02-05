@@ -9,6 +9,7 @@ import Table from 'react-bootstrap/Table';
 import FooterNav from '../components/FooterNav';
 import NavBar from '../components/NavBar';
 import AuthUser from '../components/AuthUser';
+import { format, formatDistance, formatRelative, subDays } from 'date-fns'
 
 function ManageSales() {
   const { http } = AuthUser();
@@ -73,9 +74,12 @@ function ManageSales() {
               </thead>
               <tbody>
                 {data.map((item) =>
+
+
+
                   <tr>
                     <td>{item.id}</td>
-                    <td>{item.created_date}</td>
+                    <td>{format(new Date(item.created_date), 'Do MMM y')}</td>
                     <td className='text-end'>{item.income_amount}</td>
                     <td className='text-end'>{item.total}</td>
                     <td className='text-end'>{item.discount}</td>

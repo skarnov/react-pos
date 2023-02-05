@@ -1,12 +1,25 @@
-import { useEffect, useState } from 'react';
-import { Container, Row, Col, Button, Alert, Form, Table } from 'react-bootstrap';
+import { useEffect, useState, useRef } from 'react';
+import { Container, Row, Col, Modal, Button, Alert, Form, Table } from 'react-bootstrap';
 import AuthUser from '../components/AuthUser';
 import NavBar from '../components/NavBar';
 import FooterNav from '../components/FooterNav';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useReactToPrint } from 'react-to-print';
+import { ComponentToPrint } from './ComponentToPrint';
 
 function AddSale() {
+  const componentRef = useRef();
+  const handlePrint = useReactToPrint({
+    content: () => componentRef.current,
+  });
+
+  const [show, setShow] = useState(false);
+  const closeModal = () => setShow(false);
+  const showInvoice = () => {
+    setShow(true);
+  };
+
   const toastOptions = {
     autoClose: 400,
     pauseOnHover: true,
@@ -67,8 +80,6 @@ function AddSale() {
         toast(err.response.data.msg);
       })
   }
-
-  let [quantity, setquantity] = useState();
 
   const increaseQuantity = async (stockId) => {
     http.post('/updateCartIncrease/' + stockId)
@@ -244,11 +255,30 @@ function AddSale() {
             <Button className='btn btn-sm' disabled={isDisabled} onClick={saveSale} variant="success" type="submit">
               {ButtonText}
             </Button>
+            {' '}
+            <Button className='btn btn-sm' onClick={() => showInvoice()} variant="warning" type="submit">
+              Show Invoice
+            </Button>
           </Col>
           <ToastContainer />
         </Row>
         <FooterNav />
       </Container>
+
+      <Modal show={show} onHide={closeModal} backdrop="static" keyboard={false}>
+        <Modal.Header closeButton>
+          <Modal.Title>Invoice</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <ComponentToPrint ref={componentRef} />
+          <Button variant="primary" className='btn-sm' onClick={handlePrint}>Print</Button>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={closeModal}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 }
