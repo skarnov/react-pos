@@ -1,20 +1,37 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Button } from 'react-bootstrap';
 import { Link } from "react-router-dom";
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
+import Modal from 'react-bootstrap/Modal';
 import Row from 'react-bootstrap/Row';
 import Table from 'react-bootstrap/Table';
 import FooterNav from '../components/FooterNav';
 import NavBar from '../components/NavBar';
 import AuthUser from '../components/AuthUser';
-import { format, formatDistance, formatRelative, subDays } from 'date-fns'
+import { format } from 'date-fns'
+import { useReactToPrint } from 'react-to-print';
+import { SaleInvoicePrint } from './SaleInvoicePrint';
 
 function ManageSales() {
   const { http } = AuthUser();
-  const [data, setData] = useState([]);
+  const [id, setId] = useState('');
 
+  const componentRef = useRef();
+  const handlePrint = useReactToPrint({
+    content: () => componentRef.current,
+  });
+
+  const [show, setShow] = useState(false);
+  const closeModal = () => setShow(false);
+
+  const showInvoice = (id) => {
+    setShow(true);
+    setId(id);
+  };
+
+  const [data, setData] = useState([]);
   const [filterData, setFilterdata] = useState([]);
   const [query, setQuery] = useState('');
 
@@ -74,12 +91,9 @@ function ManageSales() {
               </thead>
               <tbody>
                 {data.map((item) =>
-
-
-
-                  <tr>
+                  <tr key={item.id}>
                     <td>{item.id}</td>
-                    <td>{format(new Date(item.created_date), 'Do MMM y')}</td>
+                    <td>{format(new Date(item.created_date), 'd MMM y')}</td>
                     <td className='text-end'>{item.income_amount}</td>
                     <td className='text-end'>{item.total}</td>
                     <td className='text-end'>{item.discount}</td>
@@ -87,7 +101,7 @@ function ManageSales() {
                     <td className='text-end'>{item.paid_amount}</td>
                     <td className='text-end'>{item.sale_due}</td>
                     <td className='text-end'>
-                      <Button className='btn btn-sm' variant="primary" type="button">
+                      <Button className='btn btn-sm' onClick={() => showInvoice(item.id)} variant="info" type="button">
                         Invoice
                       </Button>
                       {' '}
@@ -102,14 +116,28 @@ function ManageSales() {
                       </Button>
                     </td>
                   </tr>
-                )
-                }
+                )}
               </tbody>
             </Table>
           </Col>
         </Row>
         <FooterNav />
       </Container>
+
+      <Modal show={show} onHide={closeModal} backdrop="static" keyboard={false}>
+        <Modal.Header closeButton>
+          <Modal.Title>Invoice</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <SaleInvoicePrint ref={componentRef} props={id} />
+          <Button variant="primary" className='btn-sm' onClick={handlePrint}>Print</Button>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={closeModal}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 }

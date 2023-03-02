@@ -6,12 +6,12 @@ import FooterNav from '../components/FooterNav';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useReactToPrint } from 'react-to-print';
-import { ComponentToPrint } from './ComponentToPrint';
+import { LastSaleToPrint } from './LastSaleToPrint';
 
 function AddSale() {
-  const componentRef = useRef();
+  const lastPrint = useRef();
   const handlePrint = useReactToPrint({
-    content: () => componentRef.current,
+    content: () => lastPrint.current,
   });
 
   const [show, setShow] = useState(false);
@@ -187,8 +187,8 @@ function AddSale() {
                 </thead>
 
                 <tbody>
-                  {cart ? cart.map((cartProduct, key) =>
-                    <tr key={key}>
+                  {cart ? cart.map((cartProduct) =>
+                    <tr key={cartProduct.id}>
                       <td>{cartProduct.name}</td>
                       <td>
                         <div className="input-group">
@@ -270,7 +270,7 @@ function AddSale() {
           <Modal.Title>Invoice</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <ComponentToPrint ref={componentRef} />
+          <LastSaleToPrint ref={lastPrint} />
           <Button variant="primary" className='btn-sm' onClick={handlePrint}>Print</Button>
         </Modal.Body>
         <Modal.Footer>
