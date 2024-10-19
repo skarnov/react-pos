@@ -1,22 +1,15 @@
-import Container from 'react-bootstrap/Container';
-import Navbar from 'react-bootstrap/Navbar';
+import { Container, Navbar } from 'react-bootstrap';
 
 function FooterNav() {
-    return (
-        <>
-            <Container fluid>
-                <Navbar fixed="bottom">
-                    <Container>
-                        <Navbar.Collapse className="justify-content-end">
-                            <Navbar.Text>
-                                &copy; <a href="https://evistechnology.com/">Evis Technology</a> All Rights Reserved.
-                            </Navbar.Text>
-                        </Navbar.Collapse>
-                    </Container>
-                </Navbar>
-            </Container>
-        </>
-    )
+  return (
+    <Navbar bg="light" className="footer-nav mt-4 py-3">
+      <Container className="d-flex justify-content-center">
+        <Navbar.Text className="text-center">
+          &copy; {new Date().getFullYear()} <a href="https://obydullah.com/" target="_blank" rel="noopener noreferrer">Obydullah</a> - All Rights Reserved.
+        </Navbar.Text>
+      </Container>
+    </Navbar>
+  );
 }
 
 export default FooterNav;
