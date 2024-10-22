@@ -10,10 +10,9 @@ const Login = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user is already logged in
     const token = localStorage.getItem("auth_token");
     if (token) {
-      navigate("/dashboard"); // Redirect to the dashboard if logged in
+      navigate("/dashboard");
     }
   }, [navigate]);
 
@@ -30,7 +29,7 @@ const Login = () => {
 
       localStorage.setItem("auth_token", response.data.token);
       console.log("Login successful", response.data);
-      navigate("/dashboard"); // Redirect to the dashboard after login
+      navigate("/dashboard");
     } catch (err) {
       setError("Login failed. Please check your credentials.");
     }
