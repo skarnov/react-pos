@@ -24,11 +24,6 @@ const LoginPage = () => {
             Login
           </button>
         </form>
-        <div className="text-center mt-4">
-          <a href="#" className="text-blue-500 hover:underline text-sm">
-            Forgot Password?
-          </a>
-        </div>
       </div>
     </div>
   );
