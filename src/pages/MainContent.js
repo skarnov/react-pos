@@ -2,27 +2,22 @@ import React from "react";
 
 const MainContent = () => {
   return (
-    <main className="flex-1 bg-gray-50 p-6">
-      <header className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-800">Dashboard</h1>
-      </header>
+    <div className="flex min-h-screen">
 
-      {/* Content goes here */}
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold text-gray-700">Statistics</h2>
-          <p className="text-gray-600">View overall system statistics.</p>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold text-gray-700">Orders</h2>
-          <p className="text-gray-600">Manage and view orders.</p>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold text-gray-700">Reports</h2>
-          <p className="text-gray-600">Generate and view reports.</p>
-        </div>
-      </section>
-    </main>
+
+
+      {/* Main Content Section */}
+      <div className="flex-1">
+        {/* Header only for Dashboard */}
+
+
+        {/* Main content area */}
+        <main className="bg-gray-50 p-6 pt-20"> {/* Added pt-20 to account for the fixed header */}
+
+          {/* Add your content here */}
+        </main>
+      </div>
+    </div>
   );
 };
 
