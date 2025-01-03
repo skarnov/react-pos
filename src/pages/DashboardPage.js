@@ -41,6 +41,22 @@ const DashboardPage = () => {
             )}
           </div>
           <div>
+            <button className="w-full flex justify-between py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200" onClick={() => toggleMenu("category")}>
+              Categories
+              {openMenu === "category" ? <FaChevronUp /> : <FaChevronDown />}
+            </button>
+            {openMenu === "category" && (
+              <div className="pl-6 space-y-1">
+                <a href="#" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
+                  Add Category
+                </a>
+                <a href="#" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
+                  Manage Categories
+                </a>
+              </div>
+            )}
+          </div>
+          <div>
             <button className="w-full flex justify-between py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200" onClick={() => toggleMenu("product")}>
               Products
               {openMenu === "product" ? <FaChevronUp /> : <FaChevronDown />}
