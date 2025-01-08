@@ -4,7 +4,14 @@ import MainContent from "../pages/MainContent";
 
 const DashboardPage = () => {
   const [openMenu, setOpenMenu] = React.useState(null);
-  const [cartTotal, setCartTotal] = React.useState(150); // Example cart total
+
+  const [cartTotal, setCartTotal] = React.useState(0);
+
+  const updateCartTotal = (total) => {
+    setCartTotal(total);
+  };
+
+
   const userName = "John Doe"; // Example user name
 
   const toggleMenu = (menuName) => {
@@ -51,7 +58,7 @@ const DashboardPage = () => {
                   Add Category
                 </a>
                 <a href="#" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
-                  Manage Categories
+                  Manage Category
                 </a>
               </div>
             )}
@@ -129,7 +136,7 @@ const DashboardPage = () => {
             {/* Cart Total */}
             <div className="flex items-center space-x-2">
               <FaShoppingCart />
-              <span>£{cartTotal}</span>
+              <span>Cart Total: £{cartTotal.toFixed(2)}</span>
             </div>
           </div>
 
@@ -141,7 +148,7 @@ const DashboardPage = () => {
         </header>
 
         {/* Main Content Section */}
-        <MainContent />
+        <MainContent updateCartTotal={updateCartTotal} />
       </div>
     </div>
   );
