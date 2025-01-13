@@ -1,34 +1,56 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { FaChevronUp, FaChevronDown, FaShoppingCart, FaSignOutAlt } from "react-icons/fa";
 import MainContent from "../pages/MainContent";
+import { logout } from "../api/axios.js";
 
 const DashboardPage = () => {
   const [openMenu, setOpenMenu] = React.useState(null);
 
   const [cartTotal, setCartTotal] = React.useState(0);
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
 
   const updateCartTotal = (total) => {
     setCartTotal(total);
   };
 
-
   const userName = "John Doe"; // Example user name
+  const navigate = useNavigate();
 
   const toggleMenu = (menuName) => {
     setOpenMenu((prev) => (prev === menuName ? null : menuName));
   };
 
-  const handleSignOut = () => {
-    console.log("Sign out clicked");
-    // Add sign out logic here (e.g., clear session, redirect, etc.)
+  const handleSignOut = async () => {
+    const token = localStorage.getItem("authToken"); // Get auth token from localStorage
+
+    if (token) {
+      try {
+        await logout(token); // Pass the token to the logout function
+        console.log("User logged out successfully");
+        localStorage.removeItem("authToken"); // Remove the token after logout
+        setIsLoggedIn(false); // Set the login state to false
+        navigate("/login"); // Redirect to login page
+      } catch (error) {
+        console.error("Error logging out:", error);
+      }
+    } else {
+      console.log("No token found, redirecting to login...");
+      navigate("/login"); // Redirect to login page if token is missing
+    }
   };
+  
 
   return (
     <div className="flex min-h-screen">
       {/* Sidebar */}
       <aside className="w-64 h-screen bg-white shadow-md flex flex-col">
         <div className="flex items-center justify-between p-6 text-lg font-bold text-gray-700">
-          <div>React POS</div>
+          <div>
+            <a href="/" className="no-underline text-inherit">
+              React POS
+            </a>
+          </div>
         </div>
         <nav className="flex-1 px-4 space-y-2">
           <div>

@@ -1,14 +1,38 @@
 import axios from "axios";
 
+// Create a reusable Axios instance
 const axiosInstance = axios.create({
-  baseURL: process.env.REACT_APP_API_BASE_URL || "http://127.0.0.1:8000/api",
-  withCredentials: true,
+  baseURL: process.env.REACT_APP_API_BASE_URL,
+  withCredentials: true, // Ensures cookies are sent with the request
 });
 
+// Add the token dynamically to the headers
+const getAuthHeaders = (token) => ({
+  Authorization: `Bearer ${token}`,
+});
+
+// Login function
 export const login = async (data) => {
-  return axiosInstance.post("/login", data);
+  try {
+    const response = await axiosInstance.post("/login", data);
+    return response;
+  } catch (error) {
+    throw new Error(error?.response?.data?.message || "Login failed");
+  }
 };
 
-export const logout = () => axiosInstance.post('/logout');
+// Logout function
+export const logout = async (token) => {
+  try {
+    const response = await axiosInstance.post(
+      "/logout", // Use the axios instance's baseURL
+      {},
+      { headers: getAuthHeaders(token) }
+    );
+    return response;
+  } catch (error) {
+    throw new Error(error?.response?.data?.message || "Logout failed");
+  }
+};
 
 export default axiosInstance;
