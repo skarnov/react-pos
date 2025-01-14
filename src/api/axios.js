@@ -1,17 +1,27 @@
 import axios from "axios";
 
-// Create a reusable Axios instance
 const axiosInstance = axios.create({
   baseURL: process.env.REACT_APP_API_BASE_URL,
-  withCredentials: true, // Ensures cookies are sent with the request
+  withCredentials: true,
 });
 
-// Add the token dynamically to the headers
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 const getAuthHeaders = (token) => ({
   Authorization: `Bearer ${token}`,
 });
 
-// Login function
 export const login = async (data) => {
   try {
     const response = await axiosInstance.post("/login", data);
@@ -21,17 +31,34 @@ export const login = async (data) => {
   }
 };
 
-// Logout function
 export const logout = async (token) => {
   try {
     const response = await axiosInstance.post(
-      "/logout", // Use the axios instance's baseURL
+      "/logout",
       {},
       { headers: getAuthHeaders(token) }
     );
     return response;
   } catch (error) {
     throw new Error(error?.response?.data?.message || "Logout failed");
+  }
+};
+
+export const fetchCategories = async (data) => {
+  try {
+    const response = await axiosInstance.post("/category", data);
+    return response;
+  } catch (error) {
+    throw new Error(error?.response?.data?.message || "Error fetching categories");
+  }
+};
+
+export const fetchTopProducts = async (data) => {
+  try {
+    const response = await axiosInstance.post("/top-product", data);
+    return response;
+  } catch (error) {
+    throw new Error(error?.response?.data?.message || "Error fetching products");
   }
 };
 

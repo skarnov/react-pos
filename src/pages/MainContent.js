@@ -1,17 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { fetchCategories, fetchTopProducts } from "../api/axios";
 
 const MainContent = ({ updateCartTotal }) => {
-  const categories = ["Electronics", "Clothing", "Groceries", "Books"];
-  const products = [
-    { id: 1, name: "Laptop", price: "$999", category: "Electronics" },
-    { id: 2, name: "T-Shirt", price: "$19", category: "Clothing" },
-    { id: 3, name: "Apple", price: "$2", category: "Groceries" },
-    { id: 4, name: "Novel", price: "$15", category: "Books" },
-    { id: 5, name: "Smartphone", price: "$699", category: "Electronics" },
-    { id: 6, name: "Jeans", price: "$40", category: "Clothing" },
-    { id: 7, name: "Banana", price: "$1", category: "Groceries" },
-    { id: 8, name: "Cookbook", price: "$25", category: "Books" },
-  ];
+  const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [error, setError] = useState("");
 
   const [cart, setCart] = useState([]);
 
@@ -35,11 +28,35 @@ const MainContent = ({ updateCartTotal }) => {
   };
 
   const calculateTotal = () => {
-    return cart.reduce((total, item) => total + parseFloat(item.price.slice(1)) * item.quantity, 0).toFixed(2);
+    return cart.reduce((total, item) => total + parseFloat(item.sale_price.slice(1)) * item.quantity, 0).toFixed(2);
   };
 
-  // Update the cart total in Dashboard whenever it changes
   useEffect(() => {
+    const fetchCategoryData = async () => {
+      try {
+        const response = await fetchCategories();
+        setCategories(response.data.categories || []);
+      } catch (err) {
+        console.error("Error fetching categories:", err.message);
+        setError(err.message);
+      }
+    };
+
+    fetchCategoryData();
+
+    const fetchProductData = async () => {
+      try {
+        const response = await fetchTopProducts();
+        console.log("Fetched Products:", response.data);
+        setProducts(response.data.mostSoldProducts || []);
+      } catch (err) {
+        console.error("Error fetching categories:", err.message);
+        setError(err.message);
+      }
+    };
+
+    fetchProductData();
+
     const total = calculateTotal();
     updateCartTotal(parseFloat(total));
   }, [cart, updateCartTotal]);
@@ -55,7 +72,7 @@ const MainContent = ({ updateCartTotal }) => {
             <div className="flex space-x-4 mt-4">
               {categories.map((category, index) => (
                 <button key={index} className="flex flex-col items-center p-4 bg-gray-100 hover:bg-gray-200 rounded-lg">
-                  <span className="text-sm text-gray-600">{category}</span>
+                  <span className="text-sm text-gray-600">{category.name}</span>
                 </button>
               ))}
             </div>
@@ -67,11 +84,11 @@ const MainContent = ({ updateCartTotal }) => {
               <h2 className="text-xl font-semibold text-gray-800 mb-4">Products</h2>
               <div className="grid grid-cols-4 gap-6 max-h-[600px] overflow-y-auto">
                 {products.map((product) => (
-                  <div key={product.id} onClick={() => addToCart(product)} className="bg-white shadow-lg p-4 rounded-lg transform hover:scale-105 transition">
+                  <div key={product.id} onClick={() => addToCart(product.id)} className="bg-white shadow-lg p-4 rounded-lg transform hover:scale-105 transition">
                     {/* Random Image */}
-                    <img src={`https://picsum.photos/200?random=${product.id}`} alt={product.name} className="w-full h-32 object-cover rounded-lg mb-4" />
+                    <img src={`http://127.0.0.1:8000/uploads/${product.image}`} alt={product.name} className="w-full h-32 object-cover rounded-lg mb-4" />
                     <h3 className="text-lg font-semibold">{product.name}</h3>
-                    <p>{product.price}</p>
+                    <p>£{product.sale_price}</p>
                   </div>
                 ))}
               </div>
@@ -89,7 +106,7 @@ const MainContent = ({ updateCartTotal }) => {
                       {/* Product Details */}
                       <div className="flex-1">
                         <h3 className="text-lg font-medium text-gray-700">{item.name}</h3>
-                        <p className="text-sm text-gray-500">Price: ${item.price}</p>
+                        <p className="text-sm text-gray-500">Price: ${item.sale_price}</p>
                       </div>
 
                       {/* Quantity Controls */}
