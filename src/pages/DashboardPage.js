@@ -14,7 +14,7 @@ const DashboardPage = () => {
     setCartTotal(total);
   };
 
-  const userName = "John Doe"; // Example user name
+  const userName = localStorage.getItem("userName");
   const navigate = useNavigate();
 
   const toggleMenu = (menuName) => {
@@ -22,25 +22,23 @@ const DashboardPage = () => {
   };
 
   const handleSignOut = async () => {
-    const token = localStorage.getItem("authToken"); // Get auth token from localStorage
-
+    const token = localStorage.getItem("authToken");
     if (token) {
       try {
-        await logout(token); // Pass the token to the logout function
+        await logout(token);
         console.log("User logged out successfully");
-        localStorage.removeItem("authToken"); // Remove the token after logout
-        setIsLoggedIn(false); // Set the login state to false
-        navigate("/login"); // Redirect to login page
+        localStorage.removeItem("authToken");
+        setIsLoggedIn(false);
+        navigate("/login");
       } catch (error) {
         console.error("Error logging out:", error);
       }
     } else {
       console.log("No token found, redirecting to login...");
-      navigate("/login"); // Redirect to login page if token is missing
+      navigate("/login");
     }
   };
   
-
   return (
     <div className="flex min-h-screen">
       {/* Sidebar */}
