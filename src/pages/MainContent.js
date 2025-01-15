@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { fetchCategories, fetchTopProducts } from "../api/axios";
+import { useConfig } from '../contexts/ConfigContext';
 
 const MainContent = ({ updateCartTotal }) => {
+  const { config } = useConfig();
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
   const [error, setError] = useState("");
@@ -88,7 +90,7 @@ const MainContent = ({ updateCartTotal }) => {
                     {/* Random Image */}
                     <img src={`http://127.0.0.1:8000/uploads/${product.image}`} alt={product.name} className="w-full h-32 object-cover rounded-lg mb-4" />
                     <h3 className="text-lg font-semibold">{product.name}</h3>
-                    <p>£{product.sale_price}</p>
+                    <p>{config.currencySign}{product.sale_price}</p>
                   </div>
                 ))}
               </div>

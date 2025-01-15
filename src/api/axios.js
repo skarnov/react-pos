@@ -44,6 +44,15 @@ export const logout = async (token) => {
   }
 };
 
+export const fetchConfiguration = async (data) => {
+  try {
+    const response = await axiosInstance.post("/dashboard", data);
+    return response;
+  } catch (error) {
+    throw new Error(error?.response?.data?.message || "Error fetching configuration");
+  }
+};
+
 export const fetchCategories = async (data) => {
   try {
     const response = await axiosInstance.post("/category", data);
