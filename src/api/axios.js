@@ -71,4 +71,15 @@ export const fetchTopProducts = async (data) => {
   }
 };
 
+export const fetchProductsByCategory = async (categoryId) => {
+  try {
+    const response = await axiosInstance.post(`/category-product/${categoryId}`);
+    return response;
+  } catch (error) {
+    throw new Error(
+      error?.response?.data?.message || "Error fetching products by category"
+    );
+  }
+};
+
 export default axiosInstance;
