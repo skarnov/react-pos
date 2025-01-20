@@ -33,11 +33,7 @@ export const login = async (data) => {
 
 export const logout = async (token) => {
   try {
-    const response = await axiosInstance.post(
-      "/logout",
-      {},
-      { headers: getAuthHeaders(token) }
-    );
+    const response = await axiosInstance.post("/logout", {}, { headers: getAuthHeaders(token) });
     return response;
   } catch (error) {
     throw new Error(error?.response?.data?.message || "Logout failed");
@@ -67,9 +63,7 @@ export const fetchProductsByCategory = async (categoryId) => {
     const response = await axiosInstance.post(`/category-product/${categoryId}`);
     return response;
   } catch (error) {
-    throw new Error(
-      error?.response?.data?.message || "Error fetching products by category"
-    );
+    throw new Error(error?.response?.data?.message || "Error fetching products by category");
   }
 };
 
@@ -79,9 +73,27 @@ export const checkout = async (saleData) => {
     return response;
   } catch (error) {
     console.error("Checkout Error:", error);
-    throw new Error(
-      error?.response?.data?.message || "Sale Error"
-    );
+    throw new Error(error?.response?.data?.message || "Sale Error");
+  }
+};
+
+export const fetchCustomers = async () => {
+  try {
+    const response = await axiosInstance.post("/customer");
+    return response;
+  } catch (error) {
+    console.error("Fetch Customers Error:", error);
+    throw new Error(error?.response?.data?.message || "Error fetching customers");
+  }
+};
+
+export const deleteCustomer = async (customerId) => {
+  try {
+    const response = await axiosInstance.delete(`/delete-customer/${customerId}`);
+    return response;
+  } catch (error) {
+    console.error("Delete Customer Error:", error);
+    throw new Error(error?.response?.data?.message || "Error deleting customer");
   }
 };
 

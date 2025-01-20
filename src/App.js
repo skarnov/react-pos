@@ -1,5 +1,4 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import CustomerPage from "./pages/CustomerPage";
@@ -11,6 +10,7 @@ import Logout from "./pages/Logout";
 import PrivateRoute from "./components/PrivateRoute";
 import "./index.css";
 import { ConfigProvider } from "./contexts/ConfigContext";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
 function App() {
   return (
@@ -20,7 +20,6 @@ function App() {
           {/* Public Route */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/logout" element={<Logout />} />
-
           {/* Private Routes */}
           <Route
             path="/dashboard"

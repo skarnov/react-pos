@@ -72,7 +72,7 @@ const MainContent = ({ updateCartTotal }) => {
     };
 
     const total = calculateTotal();
-    updateCartTotal(parseFloat(total));
+    updateCartTotal(parseFloat(total)); // Update the cart total in the parent component (DashboardPage)
   }, [cart, updateCartTotal]);
 
   const addToCart = (product) => {
@@ -125,7 +125,6 @@ const MainContent = ({ updateCartTotal }) => {
 
   return (
     <div className="flex min-h-screen">
-      {/* Main Content */}
       <div className="flex-1">
         <main className="bg-gray-50 p-6">
           {loading ? (
