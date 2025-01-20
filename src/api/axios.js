@@ -82,4 +82,16 @@ export const fetchProductsByCategory = async (categoryId) => {
   }
 };
 
+export const checkout = async (saleData) => {
+  try {
+    const response = await axiosInstance.post("/save-sale", saleData);
+    return response;
+  } catch (error) {
+    console.error("Checkout Error:", error);
+    throw new Error(
+      error?.response?.data?.message || "Sale Error"
+    );
+  }
+};
+
 export default axiosInstance;
