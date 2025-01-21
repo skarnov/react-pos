@@ -47,13 +47,11 @@ const CustomerPage = () => {
     fetchCustomerData();
   }, []);
 
-  // Handle delete modal open
   const handleDeleteClick = (customer) => {
     setCustomerToDelete(customer);
     setIsDeleteModalOpen(true);
   };
 
-  // Handle delete confirmation
   const handleDeleteCustomer = async () => {
     if (!customerToDelete) return;
 
@@ -61,14 +59,13 @@ const CustomerPage = () => {
       await deleteCustomer(customerToDelete.id);
       setCustomers((prev) => prev.filter((customer) => customer.id !== customerToDelete.id));
       alert("Customer deleted successfully.");
-      setIsDeleteModalOpen(false); // Close the modal after deletion
+      setIsDeleteModalOpen(false);
     } catch (err) {
       console.error("Error deleting customer:", err.message);
       alert(err.message || "Failed to delete customer.");
     }
   };
 
-  // Handle edit modal open
   const handleEditClick = (customer) => {
     setCustomerToEdit(customer);
     setUpdatedName(customer.name);
@@ -76,7 +73,6 @@ const CustomerPage = () => {
     setIsEditModalOpen(true);
   };
 
-  // Handle form submission to update customer
   const handleEditSubmit = async () => {
     if (!updatedName || !updatedEmail) {
       alert("Please fill in both fields.");
@@ -101,7 +97,6 @@ const CustomerPage = () => {
     }
   };
 
-  // Filter customers based on search term
   const filteredCustomers = customers.filter((customer) => customer.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
@@ -111,13 +106,7 @@ const CustomerPage = () => {
 
         {/* Search Bar */}
         <div className="mb-6">
-          <input
-            type="text"
-            placeholder="Search customers..."
-            className="w-full p-3 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-600"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+          <input type="text" placeholder="Search customers..." className="w-full p-3 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-600" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
         </div>
 
         {/* Customer List */}
@@ -143,24 +132,19 @@ const CustomerPage = () => {
                     <tr key={customer.id} className="hover:bg-gray-100">
                       <td className="py-3 px-4">{customer.name}</td>
                       <td className="py-3 px-4">{customer.email}</td>
-                      <td className="py-3 px-4">
+                      <td className="py-3 px-4 flex items-center space-x-2">
                         {/* Edit Button */}
-                        <button
-                          type="button"
-                          onClick={() => handleEditClick(customer)}
-                          className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
-                        >
-                          <FaEdit className="inline mr-2" />
+                        <button type="button" onClick={() => handleEditClick(customer)} className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 flex items-center">
+                          <FaEdit className="mr-2" />
                           Edit
                         </button>
-
                         {/* Delete Button */}
                         <button
                           type="button"
                           onClick={() => handleDeleteClick(customer)} // Open delete modal
-                          className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
+                          className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900 flex items-center"
                         >
-                          <FaTrash className="inline mr-2" />
+                          <FaTrash className="mr-2" />
                           Delete
                         </button>
                       </td>
@@ -184,26 +168,14 @@ const CustomerPage = () => {
               <label htmlFor="name" className="block text-gray-700">
                 Name
               </label>
-              <input
-                id="name"
-                type="text"
-                value={updatedName}
-                onChange={(e) => setUpdatedName(e.target.value)}
-                className="w-full p-3 border rounded-md mt-2"
-              />
+              <input id="name" type="text" value={updatedName} onChange={(e) => setUpdatedName(e.target.value)} className="w-full p-3 border rounded-md mt-2" />
             </div>
 
             <div className="mb-4">
               <label htmlFor="email" className="block text-gray-700">
                 Email
               </label>
-              <input
-                id="email"
-                type="email"
-                value={updatedEmail}
-                onChange={(e) => setUpdatedEmail(e.target.value)}
-                className="w-full p-3 border rounded-md mt-2"
-              />
+              <input id="email" type="email" value={updatedEmail} onChange={(e) => setUpdatedEmail(e.target.value)} className="w-full p-3 border rounded-md mt-2" />
             </div>
 
             {/* Horizontal Bar */}

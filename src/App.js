@@ -1,25 +1,27 @@
 import React from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import CustomerPage from "./pages/CustomerPage";
+import AddCustomer from "./pages/AddCustomer";
 import ProductPage from "./pages/ProductPage";
 import StockPage from "./pages/StockPage";
 import SalePage from "./pages/SalePage";
 import AccountingPage from "./pages/AccountingPage";
 import Logout from "./pages/Logout";
 import PrivateRoute from "./components/PrivateRoute";
-import "./index.css";
 import { ConfigProvider } from "./contexts/ConfigContext";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import "./index.css";
 
 function App() {
   return (
     <ConfigProvider>
       <Router>
         <Routes>
-          {/* Public Route */}
+          {/* Public Routes */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/logout" element={<Logout />} />
+
           {/* Private Routes */}
           <Route
             path="/dashboard"
@@ -34,6 +36,14 @@ function App() {
             element={
               <PrivateRoute>
                 <CustomerPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/add-customer"
+            element={
+              <PrivateRoute>
+                <AddCustomer />
               </PrivateRoute>
             }
           />
@@ -71,7 +81,12 @@ function App() {
           />
 
           {/* Fallback Route */}
-          <Route path="*" element={<Navigate to="/login" />} />
+          <Route
+            path="*"
+            element={
+              <Navigate to="/login" />
+            }
+          />
         </Routes>
       </Router>
     </ConfigProvider>

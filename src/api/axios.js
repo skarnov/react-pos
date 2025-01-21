@@ -87,6 +87,16 @@ export const fetchCustomers = async () => {
   }
 };
 
+export const saveCustomer = async (data) => {
+  try {
+    const response = await axiosInstance.post("/save-customer", data);
+    return response;
+  } catch (error) {
+    console.error("Customer Save Error:", error);
+    throw new Error(error?.response?.data?.message || "Customer Save Error");
+  }
+};
+
 export const updateCustomer = async (customer) => {
   try {
     const response = await axiosInstance.put(`/update-customer/${customer.id}`, {
