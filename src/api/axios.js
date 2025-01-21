@@ -87,6 +87,20 @@ export const fetchCustomers = async () => {
   }
 };
 
+export const updateCustomer = async (customer) => {
+  try {
+    const response = await axiosInstance.put(`/update-customer/${customer.id}`, {
+      name: customer.name,
+      email: customer.email,
+      status: customer.status || "active",
+    });
+    return response;
+  } catch (error) {
+    console.error("Update Customer Error:", error);
+    throw new Error(error?.response?.data?.message || "Error updating customer");
+  }
+};
+
 export const deleteCustomer = async (customerId) => {
   try {
     const response = await axiosInstance.delete(`/delete-customer/${customerId}`);

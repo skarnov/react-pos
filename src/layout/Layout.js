@@ -147,7 +147,7 @@ const Layout = ({ children, cartTotal }) => {
           </button>
         </header>
 
-        <div className="p-6">{children}</div>
+        <div>{children}</div>
       </div>
     </div>
   );
