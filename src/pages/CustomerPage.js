@@ -11,6 +11,8 @@ const CustomerPage = () => {
   const [cartTotal, setCartTotal] = useState(0);
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [customerToDelete, setCustomerToDelete] = useState(null); // Store customer to delete
   const [customerToEdit, setCustomerToEdit] = useState(null);
   const [updatedName, setUpdatedName] = useState("");
   const [updatedEmail, setUpdatedEmail] = useState("");
@@ -45,17 +47,24 @@ const CustomerPage = () => {
     fetchCustomerData();
   }, []);
 
+  // Handle delete modal open
+  const handleDeleteClick = (customer) => {
+    setCustomerToDelete(customer);
+    setIsDeleteModalOpen(true);
+  };
+
   // Handle delete confirmation
-  const handleDeleteCustomer = async (customerId) => {
-    if (window.confirm("Are you sure you want to delete this customer?")) {
-      try {
-        await deleteCustomer(customerId);
-        setCustomers((prev) => prev.filter((customer) => customer.id !== customerId));
-        alert("Customer deleted successfully.");
-      } catch (err) {
-        console.error("Error deleting customer:", err.message);
-        alert(err.message || "Failed to delete customer.");
-      }
+  const handleDeleteCustomer = async () => {
+    if (!customerToDelete) return;
+
+    try {
+      await deleteCustomer(customerToDelete.id);
+      setCustomers((prev) => prev.filter((customer) => customer.id !== customerToDelete.id));
+      alert("Customer deleted successfully.");
+      setIsDeleteModalOpen(false); // Close the modal after deletion
+    } catch (err) {
+      console.error("Error deleting customer:", err.message);
+      alert(err.message || "Failed to delete customer.");
     }
   };
 
@@ -98,11 +107,17 @@ const CustomerPage = () => {
   return (
     <Layout cartTotal={cartTotal}>
       <div className="min-h-screen bg-gray-100 p-8">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4">Customers</h2>
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">Customers</h2>
 
         {/* Search Bar */}
         <div className="mb-6">
-          <input type="text" placeholder="Search customers..." className="w-full p-3 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-600" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+          <input
+            type="text"
+            placeholder="Search customers..."
+            className="w-full p-3 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-600"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
 
         {/* Customer List */}
@@ -130,13 +145,21 @@ const CustomerPage = () => {
                       <td className="py-3 px-4">{customer.email}</td>
                       <td className="py-3 px-4">
                         {/* Edit Button */}
-                        <button type="button" onClick={() => handleEditClick(customer)} className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+                        <button
+                          type="button"
+                          onClick={() => handleEditClick(customer)}
+                          className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+                        >
                           <FaEdit className="inline mr-2" />
                           Edit
                         </button>
 
                         {/* Delete Button */}
-                        <button type="button" onClick={() => handleDeleteCustomer(customer.id)} className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteClick(customer)} // Open delete modal
+                          className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
+                        >
                           <FaTrash className="inline mr-2" />
                           Delete
                         </button>
@@ -161,18 +184,30 @@ const CustomerPage = () => {
               <label htmlFor="name" className="block text-gray-700">
                 Name
               </label>
-              <input id="name" type="text" value={updatedName} onChange={(e) => setUpdatedName(e.target.value)} className="w-full p-3 border rounded-md mt-2" />
+              <input
+                id="name"
+                type="text"
+                value={updatedName}
+                onChange={(e) => setUpdatedName(e.target.value)}
+                className="w-full p-3 border rounded-md mt-2"
+              />
             </div>
 
             <div className="mb-4">
               <label htmlFor="email" className="block text-gray-700">
                 Email
               </label>
-              <input id="email" type="email" value={updatedEmail} onChange={(e) => setUpdatedEmail(e.target.value)} className="w-full p-3 border rounded-md mt-2" />
+              <input
+                id="email"
+                type="email"
+                value={updatedEmail}
+                onChange={(e) => setUpdatedEmail(e.target.value)}
+                className="w-full p-3 border rounded-md mt-2"
+              />
             </div>
 
             {/* Horizontal Bar */}
-            <hr className="my-6 border-t border-gray-300" />
+            <hr className="my-3 border-t border-gray-300" />
 
             {/* Buttons */}
             <div className="flex justify-end space-x-4">
@@ -181,6 +216,29 @@ const CustomerPage = () => {
               </button>
               <button onClick={handleEditSubmit} className="text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md">
                 Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Modal */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-8 rounded-lg w-96">
+            <h2 className="text-2xl font-bold mb-6">Delete Customer</h2>
+            <p>Are you sure you want to delete this customer?</p>
+
+            {/* Horizontal Bar */}
+            <hr className="my-3 border-t border-gray-300" />
+
+            {/* Buttons */}
+            <div className="flex justify-end space-x-4">
+              <button onClick={() => setIsDeleteModalOpen(false)} className="text-gray-600 hover:text-gray-800 px-4 py-2 rounded-md">
+                Cancel
+              </button>
+              <button onClick={handleDeleteCustomer} className="text-white bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md">
+                Delete
               </button>
             </div>
           </div>
