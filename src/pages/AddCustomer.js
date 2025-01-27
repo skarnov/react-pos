@@ -8,7 +8,7 @@ const AddCustomer = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    status: "",
+    status: "active",
   });
 
   const [error, setError] = useState(null);
@@ -20,12 +20,7 @@ const AddCustomer = () => {
   useEffect(() => {
     const calculateCartTotal = () => {
       const cart = JSON.parse(localStorage.getItem("cart")) || [];
-      return cart.reduce(
-        (total, item) =>
-          total +
-          parseFloat(item.sale_price.replace(/[^0-9.-]+/g, "")) * item.quantity,
-        0
-      ).toFixed(2);
+      return cart.reduce((total, item) => total + parseFloat(item.sale_price.replace(/[^0-9.-]+/g, "")) * item.quantity, 0).toFixed(2);
     };
 
     const total = parseFloat(calculateCartTotal());
@@ -42,6 +37,7 @@ const AddCustomer = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       const response = await saveCustomer(formData);
       if (response.status === 200 || response.status === 201) {
@@ -86,25 +82,11 @@ const AddCustomer = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block font-medium mb-2">Name</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full border px-4 py-2 rounded-lg"
-              required
-            />
+            <input type="text" name="name" value={formData.name} onChange={handleChange} className="w-full border px-4 py-2 rounded-lg" required />
           </div>
           <div>
             <label className="block font-medium mb-2">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full border px-4 py-2 rounded-lg"
-              required
-            />
+            <input type="email" name="email" value={formData.email} onChange={handleChange} className="w-full border px-4 py-2 rounded-lg" required />
           </div>
           <div>
             <label className="block font-medium mb-2">Status</label>
@@ -118,10 +100,8 @@ const AddCustomer = () => {
               <option value="inactive">Inactive</option>
             </select>
           </div>
-          <button
-            type="submit"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center"
-          >
+
+          <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center">
             <FaSave className="mr-2" /> Add Customer
           </button>
         </form>
