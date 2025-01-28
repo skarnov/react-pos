@@ -42,7 +42,7 @@ export const logout = async (token) => {
 
 export const fetchConfiguration = async (data) => {
   try {
-    const response = await axiosInstance.post("/dashboard", data);
+    const response = await axiosInstance.post("/configuration", data);
     return response;
   } catch (error) {
     throw new Error(error?.response?.data?.message || "Error fetching configuration");
@@ -162,5 +162,50 @@ export const deleteCategory = async (categoryId) => {
     throw new Error(error?.response?.data?.message || "Error deleting category");
   }
 };
+
+export const fetchProducts = async (data) => {
+  try {
+    const response = await axiosInstance.post("/product", data);
+    return response;
+  } catch (error) {
+    throw new Error(error?.response?.data?.message || "Error fetching products");
+  }
+};
+
+export const saveProduct = async (data) => {
+  try {
+    const response = await axiosInstance.post("/save-product", data);
+    return response;
+  } catch (error) {
+    console.error("Product Save Error:", error);
+    throw new Error(error?.response?.data?.message || "Product Save Error");
+  }
+};
+
+export const updateProduct = async (product) => {
+  try {
+    const response = await axiosInstance.put(`/update-product/${product.id}`, {
+      name: product.name,
+      status: product.status || "active",
+    });
+    return response;
+  } catch (error) {
+    console.error("Update Product Error:", error);
+    throw new Error(error?.response?.data?.message || "Error updating product");
+  }
+};
+
+export const deleteProduct = async (productId) => {
+  try {
+    const response = await axiosInstance.delete(`/delete-product/${productId}`);
+    return response;
+  } catch (error) {
+    console.error("Delete Product Error:", error);
+    throw new Error(error?.response?.data?.message || "Error deleting product");
+  }
+};
+
+
+
 
 export default axiosInstance;

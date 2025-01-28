@@ -4,11 +4,8 @@ import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import CustomerPage from "./pages/CustomerPage";
 import AddCustomer from "./pages/AddCustomer";
-
 import CategoryPage from "./pages/CategoryPage";
 import AddCategory from "./pages/AddCategory";
-
-
 import ProductPage from "./pages/ProductPage";
 import AddProduct from "./pages/AddProduct";
 
@@ -86,6 +83,14 @@ function App() {
             element={
               <PrivateRoute>
                 <ProductPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/add-product"
+            element={
+              <PrivateRoute>
+                <AddProduct />
               </PrivateRoute>
             }
           />

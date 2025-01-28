@@ -1,12 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { FaChevronUp, FaChevronDown, FaShoppingCart, FaSignOutAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../api/axios";
+import { useConfig } from "../contexts/ConfigContext";
 
 const Layout = ({ children, cartTotal }) => {
   const [openMenu, setOpenMenu] = React.useState(null);
   const userName = localStorage.getItem("userName");
   const navigate = useNavigate();
+
+  const { config } = useConfig();
 
   const toggleMenu = (menuName) => {
     setOpenMenu((prev) => (prev === menuName ? null : menuName));
@@ -126,7 +129,10 @@ const Layout = ({ children, cartTotal }) => {
             <span className="text-xl font-semibold">{userName}</span>
             <div className="flex items-center space-x-2">
               <FaShoppingCart />
-              <span>Cart Total: £{cartTotal.toFixed(2)}</span>
+              <span>
+                Cart Total: {config.currencySign}
+                {cartTotal.toFixed(2)}
+              </span>
             </div>
           </div>
           <button onClick={handleSignOut} className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg flex items-center">
