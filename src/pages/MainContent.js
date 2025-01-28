@@ -1,11 +1,65 @@
 import React, { useState, useEffect } from "react";
-import { fetchDashboardCategories, fetchProductsByCategory, checkout } from "../api/axios";
+import { fetchDashboardCategories, fetchProductsByCategory, checkout, fetchCustomers } from "../api/axios";
 import { useConfig } from "../contexts/ConfigContext";
+
+const AdvancedDropdown = ({ customers, selectedCustomer, setSelectedCustomer }) => {
+  const [search, setSearch] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+
+  const filteredCustomers = customers.filter((customer) => customer.name.toLowerCase().includes(search.toLowerCase()));
+
+  useEffect(() => {
+    if (selectedCustomer) {
+      const selected = customers.find((customer) => customer.id === selectedCustomer);
+      if (selected) setSearch(selected.name);
+    }
+  }, [selectedCustomer, customers]);
+
+  const handleCustomerSelect = (customer) => {
+    setSelectedCustomer(customer.id);
+    setSearch(customer.name);
+    setIsOpen(false);
+  };
+
+  return (
+    <div className="mt-4 relative">
+      <h2 className="text-xl font-semibold text-gray-800 mb-2">Assign Customer</h2>
+      <div className="relative">
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search customers..."
+          onFocus={() => setIsOpen(true)} // Open the dropdown when the input is focused
+          className="p-2 border rounded w-full mb-2"
+        />
+        {isOpen && (
+          <div className="absolute z-10 bg-white border rounded w-full shadow-md max-h-60 overflow-y-auto">
+            {filteredCustomers.length > 0 ? (
+              filteredCustomers.map((customer) => (
+                <div key={customer.id} onClick={() => handleCustomerSelect(customer)} className={`p-2 cursor-pointer hover:bg-gray-100 flex items-center ${selectedCustomer === customer.id ? "bg-gray-200" : ""}`}>
+                  <div className="flex flex-col">
+                    <span className="font-medium">{customer.name}</span>
+                    <span className="text-sm text-gray-500">Email: {customer.email || "N/A"}</span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="p-2 text-gray-500 text-sm">No customers found</div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const MainContent = ({ updateCartTotal }) => {
   const { config } = useConfig();
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -19,25 +73,25 @@ const MainContent = ({ updateCartTotal }) => {
       setCart(savedCart);
     }
 
-    const fetchCategoryData = async () => {
+    const fetchInitialData = async () => {
       setLoading(true);
       setError("");
       try {
-        const categoriesResponse = await fetchDashboardCategories();
+        const [categoriesResponse, customersResponse] = await Promise.all([fetchDashboardCategories(), fetchCustomers()]);
         setCategories(categoriesResponse.data.categories || []);
-        // Automatically load products for the first category
+        setCustomers(customersResponse.data.customers || []);
         if (categoriesResponse.data.categories.length > 0) {
           handleCategoryClick(categoriesResponse.data.categories[0].id);
         }
       } catch (err) {
-        console.error("Error fetching categories:", err.message);
-        setError(err.message || "Error loading categories");
+        console.error("Error fetching data:", err.message);
+        setError(err.message || "Error loading data");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCategoryData();
+    fetchInitialData();
   }, []);
 
   const handleCategoryClick = async (categoryId) => {
@@ -72,7 +126,7 @@ const MainContent = ({ updateCartTotal }) => {
     };
 
     const total = calculateTotal();
-    updateCartTotal(parseFloat(total)); // Update the cart total in the parent component (DashboardPage)
+    updateCartTotal(parseFloat(total));
   }, [cart, updateCartTotal]);
 
   const addToCart = (product) => {
@@ -108,13 +162,14 @@ const MainContent = ({ updateCartTotal }) => {
           price: parseFloat(sale_price.replace(/[^0-9.-]+/g, "")),
         })),
         totalAmount: parseFloat(calculateTotal()),
+        customer_id: selectedCustomer,
       };
 
       const response = await checkout(saleData);
       console.log("Checkout successful:", response.data);
 
-      // Clear the cart and localStorage
       setCart([]);
+      setSelectedCustomer(null);
       localStorage.removeItem("cart");
       alert("Checkout successful!");
     } catch (error) {
@@ -145,7 +200,7 @@ const MainContent = ({ updateCartTotal }) => {
                 </div>
               </div>
 
-              {/* Products Section */}
+              {/* Products and Cart Section */}
               <div className="flex space-x-12">
                 <div className="flex-1">
                   <h2 className="text-xl font-semibold text-gray-800 mb-4">Products</h2>
@@ -187,6 +242,10 @@ const MainContent = ({ updateCartTotal }) => {
                           </div>
                         </div>
                       ))}
+
+                      {/* Advanced Customer Dropdown */}
+                      <AdvancedDropdown customers={customers} selectedCustomer={selectedCustomer} setSelectedCustomer={setSelectedCustomer} />
+
                       <div className="mt-4">
                         <h3 className="text-lg font-semibold text-gray-800">
                           Total: {config.currencySign}
