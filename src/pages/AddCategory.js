@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { saveCustomer } from "../api/axios";
+import { saveCategory } from "../api/axios";
 import Layout from "../layout/Layout";
 import { FaSave } from "react-icons/fa";
 
-const AddCustomer = () => {
+const AddCategory = () => {
   const [formData, setFormData] = useState({
     name: "",
-    email: "",
     status: "active",
   });
 
@@ -39,7 +38,7 @@ const AddCustomer = () => {
     e.preventDefault();
 
     try {
-      const response = await saveCustomer(formData);
+      const response = await saveCategory(formData);
       if (response.status === 200 || response.status === 201) {
         setSuccess(true);
         setError(null);
@@ -63,12 +62,12 @@ const AddCustomer = () => {
   return (
     <Layout cartTotal={cartTotal}>
       <div className="p-8">
-        <h2 className="text-2xl font-bold mb-4">Add Customer</h2>
+        <h2 className="text-2xl font-bold mb-4">Add Category</h2>
 
         {/* Success Message */}
         {success && (
           <div className="text-green-500 bg-green-100 border border-green-400 rounded p-4 mb-4">
-            <strong>Success!</strong> Customer added successfully. Redirecting...
+            <strong>Success!</strong> Category added successfully. Redirecting...
           </div>
         )}
 
@@ -85,10 +84,6 @@ const AddCustomer = () => {
             <input type="text" name="name" value={formData.name} onChange={handleChange} className="w-full border px-4 py-2 rounded-lg" required />
           </div>
           <div>
-            <label className="block font-medium mb-2">Email</label>
-            <input type="email" name="email" value={formData.email} onChange={handleChange} className="w-full border px-4 py-2 rounded-lg" required />
-          </div>
-          <div>
             <label className="block font-medium mb-2">Status</label>
             <select
               name="status"
@@ -102,7 +97,7 @@ const AddCustomer = () => {
           </div>
 
           <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center">
-            <FaSave className="mr-2" /> Add Customer
+            <FaSave className="mr-2" /> Add Category
           </button>
         </form>
       </div>
@@ -110,4 +105,4 @@ const AddCustomer = () => {
   );
 };
 
-export default AddCustomer;
+export default AddCategory;

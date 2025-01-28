@@ -4,9 +4,27 @@ import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import CustomerPage from "./pages/CustomerPage";
 import AddCustomer from "./pages/AddCustomer";
+
+import CategoryPage from "./pages/CategoryPage";
+import AddCategory from "./pages/AddCategory";
+
+
 import ProductPage from "./pages/ProductPage";
+import AddProduct from "./pages/AddProduct";
+
+
 import StockPage from "./pages/StockPage";
+import AddStock from "./pages/AddStock";
+
+
+
 import SalePage from "./pages/SalePage";
+import IncomePage from "./pages/IncomePage";
+import ExpensePage from "./pages/ExpensePage";
+
+
+
+
 import AccountingPage from "./pages/AccountingPage";
 import Logout from "./pages/Logout";
 import PrivateRoute from "./components/PrivateRoute";
@@ -44,6 +62,22 @@ function App() {
             element={
               <PrivateRoute>
                 <AddCustomer />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/categories"
+            element={
+              <PrivateRoute>
+                <CategoryPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/add-category"
+            element={
+              <PrivateRoute>
+                <AddCategory />
               </PrivateRoute>
             }
           />

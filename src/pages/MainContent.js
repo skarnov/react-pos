@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { fetchCategories, fetchProductsByCategory, checkout } from "../api/axios";
+import { fetchDashboardCategories, fetchProductsByCategory, checkout } from "../api/axios";
 import { useConfig } from "../contexts/ConfigContext";
 
 const MainContent = ({ updateCartTotal }) => {
@@ -23,7 +23,7 @@ const MainContent = ({ updateCartTotal }) => {
       setLoading(true);
       setError("");
       try {
-        const categoriesResponse = await fetchCategories();
+        const categoriesResponse = await fetchDashboardCategories();
         setCategories(categoriesResponse.data.categories || []);
         // Automatically load products for the first category
         if (categoriesResponse.data.categories.length > 0) {

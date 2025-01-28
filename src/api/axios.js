@@ -49,9 +49,9 @@ export const fetchConfiguration = async (data) => {
   }
 };
 
-export const fetchCategories = async (data) => {
+export const fetchDashboardCategories = async (data) => {
   try {
-    const response = await axiosInstance.post("/category", data);
+    const response = await axiosInstance.post("/dashboard", data);
     return response;
   } catch (error) {
     throw new Error(error?.response?.data?.message || "Error fetching categories");
@@ -118,6 +118,48 @@ export const deleteCustomer = async (customerId) => {
   } catch (error) {
     console.error("Delete Customer Error:", error);
     throw new Error(error?.response?.data?.message || "Error deleting customer");
+  }
+};
+
+export const fetchCategories = async (data) => {
+  try {
+    const response = await axiosInstance.post("/category", data);
+    return response;
+  } catch (error) {
+    throw new Error(error?.response?.data?.message || "Error fetching categories");
+  }
+};
+
+export const saveCategory = async (data) => {
+  try {
+    const response = await axiosInstance.post("/save-category", data);
+    return response;
+  } catch (error) {
+    console.error("Category Save Error:", error);
+    throw new Error(error?.response?.data?.message || "Category Save Error");
+  }
+};
+
+export const updateCategory = async (category) => {
+  try {
+    const response = await axiosInstance.put(`/update-category/${category.id}`, {
+      name: category.name,
+      status: category.status || "active",
+    });
+    return response;
+  } catch (error) {
+    console.error("Update Category Error:", error);
+    throw new Error(error?.response?.data?.message || "Error updating category");
+  }
+};
+
+export const deleteCategory = async (categoryId) => {
+  try {
+    const response = await axiosInstance.delete(`/delete-category/${categoryId}`);
+    return response;
+  } catch (error) {
+    console.error("Delete Category Error:", error);
+    throw new Error(error?.response?.data?.message || "Error deleting category");
   }
 };
 

@@ -51,7 +51,7 @@ const AddCustomer = () => {
 
         setTimeout(() => {
           setSuccess(false);
-          navigate("/categories");
+          navigate("/customers");
         }, 3000);
       }
     } catch (error) {

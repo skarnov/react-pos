@@ -61,10 +61,10 @@ const Layout = ({ children, cartTotal }) => {
             </button>
             {openMenu === "category" && (
               <div className="pl-6 space-y-1">
-                <a href="#" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
+                <a href="add-category" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
                   Add Category
                 </a>
-                <a href="#" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
+                <a href="/categories" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
                   Manage Category
                 </a>
               </div>
@@ -77,7 +77,7 @@ const Layout = ({ children, cartTotal }) => {
             </button>
             {openMenu === "product" && (
               <div className="pl-6 space-y-1">
-                <a href="#" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
+                <a href="add-product" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
                   Add Product
                 </a>
                 <a href="/products" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
@@ -93,7 +93,7 @@ const Layout = ({ children, cartTotal }) => {
             </button>
             {openMenu === "stocks" && (
               <div className="pl-6 space-y-1">
-                <a href="#" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
+                <a href="/add-stock" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
                   Add Stock
                 </a>
                 <a href="/stocks" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
@@ -102,32 +102,19 @@ const Layout = ({ children, cartTotal }) => {
               </div>
             )}
           </div>
-          <div>
-            <button className="w-full flex justify-between py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200" onClick={() => toggleMenu("sale")}>
-              Sale
-              {openMenu === "sale" ? <FaChevronUp /> : <FaChevronDown />}
-            </button>
-            {openMenu === "sale" && (
-              <div className="pl-6 space-y-1">
-                <a href="#" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
-                  Add Sale
-                </a>
-                <a href="/sales" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
-                  Manage Sale
-                </a>
-              </div>
-            )}
-          </div>
-          <a href="#" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
+          <a href="/sales" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
+            Sale
+          </a>
+          <a href="/income" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
             Income
           </a>
-          <a href="#" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
+          <a href="/expense" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
             Expense
           </a>
           <a href="/accounting" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
             Account Statement
           </a>
-          <a href="#" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
+          <a href="/about" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
             About
           </a>
         </nav>
