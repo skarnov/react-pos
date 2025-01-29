@@ -184,10 +184,23 @@ export const saveProduct = async (data) => {
 
 export const updateProduct = async (product) => {
   try {
-    const response = await axiosInstance.put(`/update-product/${product.id}`, {
-      name: product.name,
-      status: product.status || "active",
+    const formData = new FormData();
+    formData.append("name", product.name);
+    formData.append("status", product.status || "active");
+    formData.append("fk_category_id", product.category_id);
+    formData.append("description", product.description);
+    formData.append("sku", product.sku);
+    formData.append("barcode", product.barcode);
+    formData.append("specification", product.specification);
+    
+    if (product.image) {
+      formData.append("image", product.image); // Append image if selected
+    }
+
+    const response = await axiosInstance.put(`/update-product/${product.id}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
     });
+
     return response;
   } catch (error) {
     console.error("Update Product Error:", error);

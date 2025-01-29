@@ -6,9 +6,9 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 const ProductPage = () => {
   const [formData, setFormData] = useState({
     name: "",
-    category_id: "",
-    status: "active",
     sku: "",
+    barcode: "",
+    status: "active",
   });
 
   const [products, setProducts] = useState([]);
@@ -107,8 +107,6 @@ const ProductPage = () => {
   };
 
   const handleEditClick = (product) => {
-    console.log(product);
-
     setProductToEdit(product);
     setUpdatedName(product.name);
     setUpdatedStatus(product.status);
@@ -126,20 +124,27 @@ const ProductPage = () => {
       alert("Please fill in all fields.");
       return;
     }
-
+  
     try {
       const updatedProduct = {
-        ...productToEdit,
+        id: productToEdit.id, // Ensure ID is included
         name: updatedName,
-        category_id: formData.category_id,
+        category_id: updatedCategory,
         description: updatedDescription,
         status: updatedStatus,
-        image: updatedImage,
+        sku: updatedSKU,
+        barcode: updatedBarcode,
+        specification: updatedSpecification,
+        image: updatedImage, // Image file (if changed)
       };
-
+  
       await updateProduct(updatedProduct);
-      setProducts((prev) => prev.map((product) => (product.id === updatedProduct.id ? updatedProduct : product)));
-
+      
+      // Update the product list
+      setProducts((prev) =>
+        prev.map((product) => (product.id === updatedProduct.id ? { ...product, ...updatedProduct } : product))
+      );
+  
       alert("Product updated successfully.");
       setIsEditModalOpen(false);
     } catch (err) {
@@ -147,7 +152,7 @@ const ProductPage = () => {
       alert(err.message || "Failed to update product.");
     }
   };
-
+  
   const filteredProducts = products.filter((product) => product.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
@@ -306,7 +311,11 @@ const ProductPage = () => {
                 <button onClick={() => setIsEditModalOpen(false)} className="text-gray-600 hover:text-gray-800 px-4 py-2 rounded-md">
                   Cancel
                 </button>
-                <button type="submit" className="text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md">
+                <button
+                  type="button"
+                  onClick={handleEditSubmit}
+                  className="text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md"
+                >
                   Save Changes
                 </button>
               </div>

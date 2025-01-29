@@ -7,9 +7,9 @@ import { FaSave } from "react-icons/fa";
 const AddProduct = () => {
   const [formData, setFormData] = useState({
     name: "",
-    category_id: "",
-    status: "active",
     sku: "",
+    barcode: "",
+    status: "active",
   });
 
   const [categories, setCategories] = useState([]);
@@ -68,16 +68,20 @@ const AddProduct = () => {
     e.preventDefault();
 
     const form = new FormData();
-    form.append("name", formData.name);
-    form.append("category_id", formData.category_id);
-    form.append("status", formData.status);
-    form.append("sku", formData.sku);
-    form.append("barcode", formData.barcode);
+
+    const getValueOrNull = (value) => (value === undefined || value === "" ? '' : value);
+
+    form.append("name", getValueOrNull(formData.name));
+    form.append("fk_category_id", getValueOrNull(formData.category_id));
+    form.append("status", getValueOrNull(formData.status));
+    form.append("sku", getValueOrNull(formData.sku));
+    form.append("barcode", getValueOrNull(formData.barcode));
+    form.append("description", getValueOrNull(formData.description));
+    form.append("specification", getValueOrNull(formData.specification));
+
     if (formData.image) {
       form.append("image", formData.image);
     }
-    form.append("description", formData.description);
-    form.append("specification", formData.specification);
 
     try {
       const response = await saveProduct(form);
@@ -89,6 +93,10 @@ const AddProduct = () => {
           category_id: "",
           status: "active",
           sku: "",
+          barcode: "",
+          description: "",
+          specification: "",
+          image: null,
         });
 
         setTimeout(() => {
@@ -130,7 +138,7 @@ const AddProduct = () => {
             </div>
             <div className="mb-4">
               <label className="block font-medium mb-2">Category</label>
-              <select name="category_id" value={formData.category_id} onChange={handleChange} className="w-full border px-4 py-2 rounded-lg" required disabled={loading}>
+              <select name="category_id" value={formData.category_id} onChange={handleChange} className="w-full border px-4 py-2 rounded-lg" disabled={loading}>
                 <option value="">Select Category</option>
                 {categories.map((category) => (
                   <option key={category.id} value={category.id}>
@@ -141,7 +149,7 @@ const AddProduct = () => {
             </div>
             <div className="mb-4">
               <label className="block font-medium mb-2">SKU</label>
-              <input type="text" name="sku" value={formData.sku} onChange={handleChange} className="w-full border px-4 py-2 rounded-lg" />
+              <input type="text" name="sku" value={formData.sku} onChange={handleChange} required className="w-full border px-4 py-2 rounded-lg" />
             </div>
             <div className="mb-4">
               <label className="block font-medium mb-2">Status</label>
@@ -157,7 +165,7 @@ const AddProduct = () => {
           <div>
             <div className="mb-4">
               <label className="block font-medium mb-2">Barcode</label>
-              <input type="text" name="barcode" value={formData.barcode} onChange={handleChange} className="w-full border px-4 py-2 rounded-lg" />
+              <input type="text" name="barcode" value={formData.barcode} onChange={handleChange} required className="w-full border px-4 py-2 rounded-lg" />
             </div>
             <div className="mb-4">
               <label className="block font-medium mb-2">Image Upload</label>
