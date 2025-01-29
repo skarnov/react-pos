@@ -1,9 +1,16 @@
 import React, { useState, useEffect } from "react";
 import Layout from "../layout/Layout";
-import { fetchProducts, fetchCategories, deleteProduct, updateProduct } from "../api/axios"; // assuming fetchCategories is added in axios.js
+import { fetchProducts, fetchCategories, deleteProduct, updateProduct } from "../api/axios";
 import { FaEdit, FaTrash } from "react-icons/fa";
 
 const ProductPage = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    category_id: "",
+    status: "active",
+    sku: "",
+  });
+
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -13,54 +20,25 @@ const ProductPage = () => {
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
   const [productToDelete, setProductToDelete] = useState(null);
   const [productToEdit, setProductToEdit] = useState(null);
+
   const [updatedName, setUpdatedName] = useState("");
   const [updatedStatus, setUpdatedStatus] = useState("");
   const [updatedCategory, setUpdatedCategory] = useState("");
   const [updatedDescription, setUpdatedDescription] = useState("");
 
+  const [updatedSKU, setUpdatedSKU] = useState("");
+  const [updatedBarcode, setUpdatedBarcode] = useState("");
+  const [updatedSpecification, setUpdatedSpecification] = useState("");
+  const [updatedImage, setUpdatedImage] = useState(null);
 
-  const [updatedSKU, setUpdatedSKU] = useState(""); // Added SKU state
-  const [updatedBarcode, setUpdatedBarcode] = useState(""); // Added Barcode state
-  const [updatedSpecification, setUpdatedSpecification] = useState(""); // Added Specification state
-  const [updatedImage, setUpdatedImage] = useState(null); // Added Image state
-
-  const [selectedCategory, setSelectedCategory] = useState(""); // Default to empty string
-
-  useEffect(() => {
-    if (productToEdit) {
-      setSelectedCategory(productToEdit.category_id); // Set category when productToEdit is available
-    }
-  }, [productToEdit]); // Run this effect whenever productToEdit changes
-  
-
-
-
-  const [formData, setFormData] = useState({
-    category_id: "", // Default value for category
-    // other fields if necessary
-  });
-
-  // Handle image change
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     setUpdatedImage(file);
   };
 
-
-  
-  
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value, // Dynamically update the field based on input name
-    }));
-  };
-
-  // Fetch category data from API
   useEffect(() => {
     const fetchCategoryData = async () => {
       setLoading(true);
@@ -129,14 +107,17 @@ const ProductPage = () => {
   };
 
   const handleEditClick = (product) => {
+    console.log(product);
+
     setProductToEdit(product);
     setUpdatedName(product.name);
     setUpdatedStatus(product.status);
     setUpdatedDescription(product.description);
-    setUpdatedSKU(product.sku); // Populate SKU
-    setUpdatedBarcode(product.barcode); // Populate Barcode
-    setUpdatedSpecification(product.specification); // Populate Specification
-    setUpdatedImage(null); // Reset image to null or set existing image
+    setUpdatedSKU(product.sku);
+    setUpdatedBarcode(product.barcode);
+    setUpdatedSpecification(product.specification);
+    setUpdatedCategory(product.fk_category_id);
+    setUpdatedImage(null);
     setIsEditModalOpen(true);
   };
 
@@ -276,33 +257,24 @@ const ProductPage = () => {
 
                 {/* Column 2 */}
                 <div className="space-y-4">
+                  <div className="mb-4">
+                    <label className="block font-medium mb-2">Category</label>
+                    <select name="category_id" value={updatedCategory || ""} onChange={(e) => setUpdatedCategory(e.target.value)} className="w-full border px-4 py-2 rounded-lg" disabled={loading}>
+                      <option value="">Select Category</option>
+                      {categories.map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
                   {/* Specification Field */}
                   <div className="mb-4">
                     <label htmlFor="specification" className="block text-gray-700">
                       Specification
                     </label>
                     <textarea id="specification" value={updatedSpecification} onChange={(e) => setUpdatedSpecification(e.target.value)} className="w-full p-3 border rounded-md mt-2" />
-                  </div>
-
-                  {/* Category Field */}
-                  <div className="mb-4">
-                    <label className="block font-medium mb-2">Category</label>
-                    <select
-  id="category"
-  className="p-2 border rounded-md w-full"
-  value={selectedCategory} // Use selectedCategory state here
-  onChange={(e) => setSelectedCategory(e.target.value)}
->
-  <option value="" disabled>
-    Select a category
-  </option>
-  {categories.map((category) => (
-    <option key={category.id} value={category.id}>
-      {category.name}
-    </option>
-  ))}
-</select>
-
                   </div>
 
                   {/* Description Field */}
