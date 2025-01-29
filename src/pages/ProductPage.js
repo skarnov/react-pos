@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import Layout from "../layout/Layout";
-import { fetchProducts, deleteProduct, updateProduct } from "../api/axios";
+import { fetchProducts, fetchCategories, deleteProduct, updateProduct } from "../api/axios"; // assuming fetchCategories is added in axios.js
 import { FaEdit, FaTrash } from "react-icons/fa";
 
 const ProductPage = () => {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -17,9 +18,66 @@ const ProductPage = () => {
   const [updatedName, setUpdatedName] = useState("");
   const [updatedStatus, setUpdatedStatus] = useState("");
   const [updatedCategory, setUpdatedCategory] = useState("");
-  const [updatedPrice, setUpdatedPrice] = useState("");
-  const [updatedQuantity, setUpdatedQuantity] = useState("");
   const [updatedDescription, setUpdatedDescription] = useState("");
+
+
+  const [updatedSKU, setUpdatedSKU] = useState(""); // Added SKU state
+  const [updatedBarcode, setUpdatedBarcode] = useState(""); // Added Barcode state
+  const [updatedSpecification, setUpdatedSpecification] = useState(""); // Added Specification state
+  const [updatedImage, setUpdatedImage] = useState(null); // Added Image state
+
+  const [selectedCategory, setSelectedCategory] = useState(""); // Default to empty string
+
+  useEffect(() => {
+    if (productToEdit) {
+      setSelectedCategory(productToEdit.category_id); // Set category when productToEdit is available
+    }
+  }, [productToEdit]); // Run this effect whenever productToEdit changes
+  
+
+
+
+  const [formData, setFormData] = useState({
+    category_id: "", // Default value for category
+    // other fields if necessary
+  });
+
+  // Handle image change
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    setUpdatedImage(file);
+  };
+
+
+  
+  
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value, // Dynamically update the field based on input name
+    }));
+  };
+
+  // Fetch category data from API
+  useEffect(() => {
+    const fetchCategoryData = async () => {
+      setLoading(true);
+      setError("");
+      try {
+        const response = await fetchCategories();
+        setCategories(response.data.categories || []);
+      } catch (err) {
+        console.error("Error fetching categories:", err.message);
+        setError(err.message || "Failed to load categories.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategoryData();
+  }, []);
 
   // Calculate the cart total from localStorage
   useEffect(() => {
@@ -74,15 +132,16 @@ const ProductPage = () => {
     setProductToEdit(product);
     setUpdatedName(product.name);
     setUpdatedStatus(product.status);
-    setUpdatedCategory(product.category_name);
-    setUpdatedPrice(product.price);
-    setUpdatedQuantity(product.quantity);
     setUpdatedDescription(product.description);
+    setUpdatedSKU(product.sku); // Populate SKU
+    setUpdatedBarcode(product.barcode); // Populate Barcode
+    setUpdatedSpecification(product.specification); // Populate Specification
+    setUpdatedImage(null); // Reset image to null or set existing image
     setIsEditModalOpen(true);
   };
 
   const handleEditSubmit = async () => {
-    if (!updatedName || !updatedCategory || !updatedPrice || !updatedQuantity || !updatedDescription || !updatedStatus) {
+    if (!updatedName || !updatedCategory || !updatedDescription || !updatedStatus) {
       alert("Please fill in all fields.");
       return;
     }
@@ -91,11 +150,10 @@ const ProductPage = () => {
       const updatedProduct = {
         ...productToEdit,
         name: updatedName,
-        category_name: updatedCategory,
-        price: updatedPrice,
-        quantity: updatedQuantity,
+        category_id: formData.category_id,
         description: updatedDescription,
         status: updatedStatus,
+        image: updatedImage,
       };
 
       await updateProduct(updatedProduct);
@@ -173,69 +231,110 @@ const ProductPage = () => {
         {/* Edit Modal */}
         {isEditModalOpen && (
           <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
-            <div className="bg-white p-8 rounded-lg w-96">
+            <div className="bg-white p-8 rounded-lg w-[60rem]">
               <h2 className="text-2xl font-bold mb-6">Edit Product</h2>
+              {/* Horizontal Bar */}
+              <hr className="my-6 border-t border-gray-300" />
 
-              {/* Name Field */}
-              <div className="mb-4">
-                <label htmlFor="name" className="block text-gray-700">
-                  Name
-                </label>
-                <input id="name" type="text" value={updatedName} onChange={(e) => setUpdatedName(e.target.value)} className="w-full p-3 border rounded-md mt-2" />
-              </div>
+              {/* Form Layout */}
+              <form className="grid grid-cols-2 gap-6">
+                {/* Column 1 */}
+                <div className="space-y-4">
+                  {/* Image Field */}
+                  <div className="mb-4 flex flex-col items-center">
+                    <label htmlFor="image" className="block text-gray-700">
+                      Product Image
+                    </label>
+                    <img src={updatedImage ? URL.createObjectURL(updatedImage) : `http://127.0.0.1:8000/uploads/${productToEdit?.image}`} alt={productToEdit?.name} className="w-24 h-24 object-cover rounded-md mb-3" />
+                    <input id="image" type="file" className="p-2 border rounded-md" onChange={handleImageChange} />
+                  </div>
 
-              {/* Category Field */}
-              <div className="mb-4">
-                <label htmlFor="category" className="block text-gray-700">
-                  Category
-                </label>
-                <input id="category" type="text" value={updatedCategory} onChange={(e) => setUpdatedCategory(e.target.value)} className="w-full p-3 border rounded-md mt-2" />
-              </div>
+                  {/* Name Field */}
+                  <div className="mb-4">
+                    <label htmlFor="name" className="block text-gray-700">
+                      Name
+                    </label>
+                    <input id="name" type="text" value={updatedName} onChange={(e) => setUpdatedName(e.target.value)} className="w-full p-3 border rounded-md mt-2" />
+                  </div>
 
-              {/* Price Field */}
-              <div className="mb-4">
-                <label htmlFor="price" className="block text-gray-700">
-                  Price
-                </label>
-                <input id="price" type="number" value={updatedPrice} onChange={(e) => setUpdatedPrice(e.target.value)} className="w-full p-3 border rounded-md mt-2" />
-              </div>
+                  {/* SKU Field */}
+                  <div className="mb-4">
+                    <label htmlFor="sku" className="block text-gray-700">
+                      SKU
+                    </label>
+                    <input id="sku" type="text" value={updatedSKU} onChange={(e) => setUpdatedSKU(e.target.value)} className="w-full p-3 border rounded-md mt-2" />
+                  </div>
 
-              {/* Stock Quantity Field */}
-              <div className="mb-4">
-                <label htmlFor="quantity" className="block text-gray-700">
-                  Stock Quantity
-                </label>
-                <input id="quantity" type="number" value={updatedQuantity} onChange={(e) => setUpdatedQuantity(e.target.value)} className="w-full p-3 border rounded-md mt-2" />
-              </div>
+                  {/* Barcode Field */}
+                  <div className="mb-4">
+                    <label htmlFor="barcode" className="block text-gray-700">
+                      Barcode
+                    </label>
+                    <input id="barcode" type="text" value={updatedBarcode} onChange={(e) => setUpdatedBarcode(e.target.value)} className="w-full p-3 border rounded-md mt-2" />
+                  </div>
+                </div>
 
-              {/* Description Field */}
-              <div className="mb-4">
-                <label htmlFor="description" className="block text-gray-700">
-                  Description
-                </label>
-                <textarea id="description" value={updatedDescription} onChange={(e) => setUpdatedDescription(e.target.value)} className="w-full p-3 border rounded-md mt-2" />
-              </div>
+                {/* Column 2 */}
+                <div className="space-y-4">
+                  {/* Specification Field */}
+                  <div className="mb-4">
+                    <label htmlFor="specification" className="block text-gray-700">
+                      Specification
+                    </label>
+                    <textarea id="specification" value={updatedSpecification} onChange={(e) => setUpdatedSpecification(e.target.value)} className="w-full p-3 border rounded-md mt-2" />
+                  </div>
 
-              {/* Status Dropdown */}
-              <div className="mb-4">
-                <label htmlFor="status" className="block text-gray-700">
-                  Status
-                </label>
-                <select id="status" value={updatedStatus} onChange={(e) => setUpdatedStatus(e.target.value)} className="w-full p-3 border rounded-md mt-2">
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                </select>
-              </div>
+                  {/* Category Field */}
+                  <div className="mb-4">
+                    <label className="block font-medium mb-2">Category</label>
+                    <select
+  id="category"
+  className="p-2 border rounded-md w-full"
+  value={selectedCategory} // Use selectedCategory state here
+  onChange={(e) => setSelectedCategory(e.target.value)}
+>
+  <option value="" disabled>
+    Select a category
+  </option>
+  {categories.map((category) => (
+    <option key={category.id} value={category.id}>
+      {category.name}
+    </option>
+  ))}
+</select>
+
+                  </div>
+
+                  {/* Description Field */}
+                  <div className="mb-4">
+                    <label htmlFor="description" className="block text-gray-700">
+                      Description
+                    </label>
+                    <textarea id="description" value={updatedDescription} onChange={(e) => setUpdatedDescription(e.target.value)} className="w-full p-3 border rounded-md mt-2" />
+                  </div>
+
+                  {/* Status Dropdown */}
+                  <div className="mb-4">
+                    <label htmlFor="status" className="block text-gray-700">
+                      Status
+                    </label>
+                    <select id="status" value={updatedStatus} onChange={(e) => setUpdatedStatus(e.target.value)} className="w-full p-3 border rounded-md mt-2">
+                      <option value="active">Active</option>
+                      <option value="inactive">Inactive</option>
+                    </select>
+                  </div>
+                </div>
+              </form>
 
               {/* Horizontal Bar */}
-              <hr className="my-3 border-t border-gray-300" />
+              <hr className="my-6 border-t border-gray-300" />
 
               {/* Buttons */}
               <div className="flex justify-end space-x-4">
                 <button onClick={() => setIsEditModalOpen(false)} className="text-gray-600 hover:text-gray-800 px-4 py-2 rounded-md">
                   Cancel
                 </button>
-                <button onClick={handleEditSubmit} className="text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md">
+                <button type="submit" className="text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md">
                   Save Changes
                 </button>
               </div>

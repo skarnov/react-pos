@@ -8,20 +8,11 @@ import CategoryPage from "./pages/CategoryPage";
 import AddCategory from "./pages/AddCategory";
 import ProductPage from "./pages/ProductPage";
 import AddProduct from "./pages/AddProduct";
-
-
 import StockPage from "./pages/StockPage";
 import AddStock from "./pages/AddStock";
-
-
-
 import SalePage from "./pages/SalePage";
 import IncomePage from "./pages/IncomePage";
 import ExpensePage from "./pages/ExpensePage";
-
-
-
-
 import AccountingPage from "./pages/AccountingPage";
 import Logout from "./pages/Logout";
 import PrivateRoute from "./components/PrivateRoute";
@@ -103,10 +94,34 @@ function App() {
             }
           />
           <Route
+            path="/add-stock"
+            element={
+              <PrivateRoute>
+                <AddStock />
+              </PrivateRoute>
+            }
+          />
+          <Route
             path="/sales"
             element={
               <PrivateRoute>
                 <SalePage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/incomes"
+            element={
+              <PrivateRoute>
+                <IncomePage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/expenses"
+            element={
+              <PrivateRoute>
+                <ExpensePage />
               </PrivateRoute>
             }
           />
