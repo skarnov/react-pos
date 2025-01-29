@@ -4,13 +4,6 @@ import { fetchProducts, fetchCategories, deleteProduct, updateProduct } from "..
 import { FaEdit, FaTrash } from "react-icons/fa";
 
 const ProductPage = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    sku: "",
-    barcode: "",
-    status: "active",
-  });
-
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -20,17 +13,15 @@ const ProductPage = () => {
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-
   const [productToDelete, setProductToDelete] = useState(null);
   const [productToEdit, setProductToEdit] = useState(null);
 
   const [updatedName, setUpdatedName] = useState("");
+  const [updatedSKU, setUpdatedSKU] = useState("");
+  const [updatedBarcode, setUpdatedBarcode] = useState("");
   const [updatedStatus, setUpdatedStatus] = useState("");
   const [updatedCategory, setUpdatedCategory] = useState("");
   const [updatedDescription, setUpdatedDescription] = useState("");
-
-  const [updatedSKU, setUpdatedSKU] = useState("");
-  const [updatedBarcode, setUpdatedBarcode] = useState("");
   const [updatedSpecification, setUpdatedSpecification] = useState("");
   const [updatedImage, setUpdatedImage] = useState(null);
 
@@ -109,10 +100,10 @@ const ProductPage = () => {
   const handleEditClick = (product) => {
     setProductToEdit(product);
     setUpdatedName(product.name);
-    setUpdatedStatus(product.status);
-    setUpdatedDescription(product.description);
     setUpdatedSKU(product.sku);
     setUpdatedBarcode(product.barcode);
+    setUpdatedStatus(product.status);
+    setUpdatedDescription(product.description);
     setUpdatedSpecification(product.specification);
     setUpdatedCategory(product.fk_category_id);
     setUpdatedImage(null);
@@ -120,33 +111,43 @@ const ProductPage = () => {
   };
 
   const handleEditSubmit = async () => {
-    if (!updatedName || !updatedCategory || !updatedDescription || !updatedStatus) {
-      alert("Please fill in all fields.");
+    if (!updatedName) {
+      alert("Please fill the product name.");
       return;
     }
   
     try {
-      const updatedProduct = {
-        id: productToEdit.id, // Ensure ID is included
-        name: updatedName,
-        category_id: updatedCategory,
-        description: updatedDescription,
-        status: updatedStatus,
-        sku: updatedSKU,
-        barcode: updatedBarcode,
-        specification: updatedSpecification,
-        image: updatedImage, // Image file (if changed)
-      };
+      const selectedCategory = categories.find(category => String(category.id) === String(updatedCategory));
+
+      if (selectedCategory) {
+        const updatedProduct = {
+          id: productToEdit.id,
+          name: updatedName,
+          category_id: updatedCategory,
+          category_name: selectedCategory.name,
+          description: updatedDescription,
+          status: updatedStatus,
+          sku: updatedSKU,
+          barcode: updatedBarcode,
+          specification: updatedSpecification,
+          image: updatedImage,
+        };
   
-      await updateProduct(updatedProduct);
-      
-      // Update the product list
-      setProducts((prev) =>
-        prev.map((product) => (product.id === updatedProduct.id ? { ...product, ...updatedProduct } : product))
-      );
+        await updateProduct(updatedProduct);
+        
+        setProducts((prev) =>
+          prev.map((product) => 
+            product.id === updatedProduct.id 
+              ? { ...product, ...updatedProduct }
+              : product
+          )
+        );
   
-      alert("Product updated successfully.");
-      setIsEditModalOpen(false);
+        alert("Product updated successfully.");
+        setIsEditModalOpen(false);
+      } else {
+        alert("Selected category not found.");
+      }
     } catch (err) {
       console.error("Error updating product:", err.message);
       alert(err.message || "Failed to update product.");

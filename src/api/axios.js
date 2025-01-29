@@ -194,10 +194,10 @@ export const updateProduct = async (product) => {
     formData.append("specification", product.specification);
     
     if (product.image) {
-      formData.append("image", product.image); // Append image if selected
+      formData.append("image", product.image);
     }
 
-    const response = await axiosInstance.put(`/update-product/${product.id}`, formData, {
+    const response = await axiosInstance.post(`/update-product/${product.id}`, formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
 
@@ -217,8 +217,5 @@ export const deleteProduct = async (productId) => {
     throw new Error(error?.response?.data?.message || "Error deleting product");
   }
 };
-
-
-
 
 export default axiosInstance;
