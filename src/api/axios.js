@@ -218,4 +218,51 @@ export const deleteProduct = async (productId) => {
   }
 };
 
+export const fetchStocks = async (data) => {
+  try {
+    const response = await axiosInstance.post("/stock", data);
+    return response;
+  } catch (error) {
+    throw new Error(error?.response?.data?.message || "Error fetching stocks");
+  }
+};
+
+export const saveStock = async (data) => {
+  try {
+    const response = await axiosInstance.post("/save-stock", data);
+    return response;
+  } catch (error) {
+    console.error("Stock Save Error:", error);
+    throw new Error(error?.response?.data?.message || "Stock Save Error");
+  }
+};
+
+export const updateStock = async (stock) => {
+  try {
+    const response = await axiosInstance.put(`/update-stock/${stock.id}`, {
+      fk_product_id: stock.product_id,
+      batch: stock.batch,
+      lot: stock.lot,
+      quantity: stock.quantity,
+      buy_price: stock.buy_price,
+      sale_price: stock.sale_price,
+      status: stock.status || "active",
+    });
+    return response;
+  } catch (error) {
+    console.error("Update Stock Error:", error);
+    throw new Error(error?.response?.data?.message || "Error updating stock");
+  }
+};
+
+export const deleteStock = async (stockId) => {
+  try {
+    const response = await axiosInstance.delete(`/delete-stock/${stockId}`);
+    return response;
+  } catch (error) {
+    console.error("Delete Stock Error:", error);
+    throw new Error(error?.response?.data?.message || "Error deleting stock");
+  }
+};
+
 export default axiosInstance;
