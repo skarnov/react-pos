@@ -265,4 +265,24 @@ export const deleteStock = async (stockId) => {
   }
 };
 
+export const fetchSale = async () => {
+  try {
+    const response = await axiosInstance.post("/sale");
+    return response;
+  } catch (error) {
+    console.error("Fetch Sale Error:", error);
+    throw new Error(error?.response?.data?.message || "Error fetching sales");
+  }
+};
+
+export const deleteSale = async (saleId) => {
+  try {
+    const response = await axiosInstance.delete(`/delete-sale/${saleId}`);
+    return response;
+  } catch (error) {
+    console.error("Delete Sale Error:", error);
+    throw new Error(error?.response?.data?.message || "Error deleting sale");
+  }
+};
+
 export default axiosInstance;
