@@ -275,6 +275,15 @@ export const fetchSale = async () => {
   }
 };
 
+export const fetchSaleDetails = async (saleId) => {
+  try {
+    const response = await axiosInstance.post(`/select-sale/${saleId}`);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to fetch sale details.");
+  }
+};
+
 export const deleteSale = async (saleId) => {
   try {
     const response = await axiosInstance.delete(`/delete-sale/${saleId}`);
