@@ -162,7 +162,7 @@ const MainContent = ({ updateCartTotal }) => {
           price: parseFloat(sale_price.replace(/[^0-9.-]+/g, "")),
         })),
         totalAmount: parseFloat(calculateTotal()),
-        customer_id: selectedCustomer,
+        customer_id: selectedCustomer || null,
       };
 
       const response = await checkout(saleData);
