@@ -294,4 +294,41 @@ export const deleteSale = async (saleId) => {
   }
 };
 
+export const fetchIncomes = async (data) => {
+  try {
+    const response = await axiosInstance.post("/income", data);
+    return response;
+  } catch (error) {
+    throw new Error(error?.response?.data?.message || "Error fetching incomes");
+  }
+};
+
+export const saveIncome = async (data) => {
+  try {
+    const response = await axiosInstance.post("/save-income", data);
+    return response;
+  } catch (error) {
+    console.error("Income Save Error:", error);
+    throw new Error(error?.response?.data?.message || "Income Save Error");
+  }
+};
+
+export const updateIncome = async (income) => {
+  try {
+    const response = await axiosInstance.put(`/update-income/${income.id}`, {
+      fk_product_id: income.product_id,
+      batch: income.batch,
+      lot: income.lot,
+      quantity: income.quantity,
+      buy_price: income.buy_price,
+      sale_price: income.sale_price,
+      status: income.status || "active",
+    });
+    return response;
+  } catch (error) {
+    console.error("Update Income Error:", error);
+    throw new Error(error?.response?.data?.message || "Error updating income");
+  }
+};
+
 export default axiosInstance;

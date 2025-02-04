@@ -106,16 +106,42 @@ const Layout = ({ children, cartTotal }) => {
             )}
           </div>
           <a href="/sales" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
-            Sale
+            Sales
           </a>
-          <a href="/income" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
-            Income
-          </a>
-          <a href="/expense" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
-            Expense
-          </a>
-          <a href="/accounting" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
-            Account Statement
+          <div>
+            <button className="w-full flex justify-between py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200" onClick={() => toggleMenu("incomes")}>
+              Incomes
+              {openMenu === "incomes" ? <FaChevronUp /> : <FaChevronDown />}
+            </button>
+            {openMenu === "incomes" && (
+              <div className="pl-6 space-y-1">
+                <a href="/add-income" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
+                  Add Income
+                </a>
+                <a href="/incomes" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
+                  Manage Income
+                </a>
+              </div>
+            )}
+          </div>
+          <div>
+            <button className="w-full flex justify-between py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200" onClick={() => toggleMenu("expenses")}>
+              Expenses
+              {openMenu === "expenses" ? <FaChevronUp /> : <FaChevronDown />}
+            </button>
+            {openMenu === "expenses" && (
+              <div className="pl-6 space-y-1">
+                <a href="/add-expense" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
+                  Add Expense
+                </a>
+                <a href="/expenses" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
+                  Manage Expense
+                </a>
+              </div>
+            )}
+          </div>
+          <a href="/reports" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
+            Report
           </a>
           <a href="/about" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
             About

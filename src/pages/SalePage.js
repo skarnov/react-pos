@@ -4,8 +4,10 @@ import { fetchSale, fetchSaleDetails, deleteSale } from "../api/axios";
 import { FaFileInvoice, FaTrash, FaDownload } from "react-icons/fa";
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
+import { useConfig } from "../contexts/ConfigContext";
 
 const SalePage = () => {
+  const { config } = useConfig();
   const [sales, setSales] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
@@ -28,6 +30,21 @@ const SalePage = () => {
     const total = parseFloat(calculateCartTotal());
     setCartTotal(total);
   }, []);
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date
+      .toLocaleString("en-GB", {
+        year: "numeric",
+        month: "long",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      })
+      .replace("am", "AM")
+      .replace("pm", "PM");
+  };
 
   useEffect(() => {
     const fetchSaleData = async () => {
@@ -130,6 +147,7 @@ const SalePage = () => {
                 <thead className="bg-gray-200">
                   <tr>
                     <th className="border p-2">Invoice ID</th>
+                    <th className="border p-2">Date</th>
                     <th className="border p-2">Net Price</th>
                     <th className="border p-2">VAT</th>
                     <th className="border p-2">TAX</th>
@@ -142,11 +160,12 @@ const SalePage = () => {
                   {filteredSales.map((sale) => (
                     <tr key={sale.id} className="border">
                       <td className="border p-2">{sale.invoice_id}</td>
-                      <td className="border p-2">{sale.net_price}</td>
-                      <td className="border p-2">{sale.vat_amount}</td>
-                      <td className="border p-2">{sale.tax_amount}</td>
-                      <td className="border p-2">{sale.grand_total}</td>
-                      <td className="border p-2">{sale.buy_price}</td>
+                      <td className="border p-2">{formatDate(sale.created_at)}</td>
+                      <td className="border p-2">{config.currencySign}{sale.net_price}</td>
+                      <td className="border p-2">{config.currencySign}{sale.vat_amount}</td>
+                      <td className="border p-2">{config.currencySign}{sale.tax_amount}</td>
+                      <td className="border p-2">{config.currencySign}{sale.grand_total}</td>
+                      <td className="border p-2">{config.currencySign}{sale.buy_price}</td>
                       <td className="py-3 px-4 flex items-center space-x-2">
                         {/* View Button */}
                         <button type="button" onClick={() => handleViewClick(sale.id)} className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 flex items-center">

@@ -1,6 +1,6 @@
 import React from 'react';
 
-const AccountingPage = () => {
+const ReportPage = () => {
   return (
     <div className="min-h-screen bg-gray-100 p-8">
       <h1 className="text-3xl font-bold text-gray-700">Accounting</h1>
@@ -9,4 +9,4 @@ const AccountingPage = () => {
   );
 };
 
-export default AccountingPage;
+export default ReportPage;

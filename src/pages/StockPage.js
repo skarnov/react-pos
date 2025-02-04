@@ -2,8 +2,10 @@ import React, { useState, useEffect } from "react";
 import Layout from "../layout/Layout";
 import { fetchStocks, updateStock, deleteStock } from "../api/axios";
 import { FaEdit, FaTrash } from "react-icons/fa";
+import { useConfig } from "../contexts/ConfigContext";
 
 const StockPage = () => {
+  const { config } = useConfig();
   const [stocks, setStocks] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
@@ -135,8 +137,8 @@ const StockPage = () => {
                       <td className="border p-2">{stock.batch}</td>
                       <td className="border p-2">{stock.lot}</td>
                       <td className="border p-2">{stock.quantity}</td>
-                      <td className="border p-2">{stock.buy_price}</td>
-                      <td className="border p-2">{stock.sale_price}</td>
+                      <td className="border p-2">{config.currencySign}{stock.buy_price}</td>
+                      <td className="border p-2">{config.currencySign}{stock.sale_price}</td>
                       <td className="border p-2 capitalize">{stock.status}</td>
                       <td className="py-3 px-4 flex items-center space-x-2">
                         {/* Edit Button */}

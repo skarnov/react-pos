@@ -12,8 +12,10 @@ import StockPage from "./pages/StockPage";
 import AddStock from "./pages/AddStock";
 import SalePage from "./pages/SalePage";
 import IncomePage from "./pages/IncomePage";
+import AddIncome from "./pages/AddIncome";
 import ExpensePage from "./pages/ExpensePage";
-import AccountingPage from "./pages/AccountingPage";
+import AddExpense from "./pages/AddExpense";
+import ReportPage from "./pages/ReportPage";
 import Logout from "./pages/Logout";
 import PrivateRoute from "./components/PrivateRoute";
 import { ConfigProvider } from "./contexts/ConfigContext";
@@ -118,6 +120,14 @@ function App() {
             }
           />
           <Route
+            path="/add-income"
+            element={
+              <PrivateRoute>
+                <AddIncome />
+              </PrivateRoute>
+            }
+          />
+          <Route
             path="/expenses"
             element={
               <PrivateRoute>
@@ -126,10 +136,18 @@ function App() {
             }
           />
           <Route
-            path="/accounting"
+            path="/add-expense"
             element={
               <PrivateRoute>
-                <AccountingPage />
+                <AddExpense />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/reports"
+            element={
+              <PrivateRoute>
+                <ReportPage />
               </PrivateRoute>
             }
           />
