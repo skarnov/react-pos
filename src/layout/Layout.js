@@ -143,9 +143,6 @@ const Layout = ({ children, cartTotal }) => {
           <a href="/reports" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
             Report
           </a>
-          <a href="/about" className="block py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-200">
-            About
-          </a>
         </nav>
       </aside>
 

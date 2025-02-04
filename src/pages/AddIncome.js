@@ -73,7 +73,7 @@ const AddIncome = () => {
         {/* Success Message */}
         {success && (
           <div className="text-green-500 bg-green-100 border border-green-400 rounded p-4 mb-4">
-            <strong>Success!</strong> Customer added successfully. Redirecting...
+            <strong>Success!</strong> Income added successfully. Redirecting...
           </div>
         )}
 

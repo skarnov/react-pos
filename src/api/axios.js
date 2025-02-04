@@ -313,21 +313,31 @@ export const saveIncome = async (data) => {
   }
 };
 
-export const updateIncome = async (income) => {
+export const fetchExpenses = async (data) => {
   try {
-    const response = await axiosInstance.put(`/update-income/${income.id}`, {
-      fk_product_id: income.product_id,
-      batch: income.batch,
-      lot: income.lot,
-      quantity: income.quantity,
-      buy_price: income.buy_price,
-      sale_price: income.sale_price,
-      status: income.status || "active",
-    });
+    const response = await axiosInstance.post("/expense", data);
     return response;
   } catch (error) {
-    console.error("Update Income Error:", error);
-    throw new Error(error?.response?.data?.message || "Error updating income");
+    throw new Error(error?.response?.data?.message || "Error fetching expenses");
+  }
+};
+
+export const saveExpense = async (data) => {
+  try {
+    const response = await axiosInstance.post("/save-expense", data);
+    return response;
+  } catch (error) {
+    console.error("Expense Save Error:", error);
+    throw new Error(error?.response?.data?.message || "Expense Save Error");
+  }
+};
+
+export const fetchReports = async (data) => {
+  try {
+    const response = await axiosInstance.post("/report", data);
+    return response;
+  } catch (error) {
+    throw new Error(error?.response?.data?.message || "Error fetching reports");
   }
 };
 

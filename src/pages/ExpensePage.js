@@ -1,21 +1,15 @@
 import React, { useState, useEffect } from "react";
 import Layout from "../layout/Layout";
-import { fetchCustomers, deleteCustomer, updateCustomer } from "../api/axios";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { fetchExpenses } from "../api/axios";
+import { useConfig } from "../contexts/ConfigContext";
 
 const ExpensePage = () => {
-  const [customers, setCustomers] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const { config } = useConfig();
+  const [expenses, setExpenses] = useState([]);
+  const [filteredExpenses, setFilteredExpenses] = useState([]);
   const [cartTotal, setCartTotal] = useState(0);
-
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [customerToDelete, setCustomerToDelete] = useState(null); // Store customer to delete
-  const [customerToEdit, setCustomerToEdit] = useState(null);
-  const [updatedName, setUpdatedName] = useState("");
-  const [updatedEmail, setUpdatedEmail] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   // Calculate the cart total from localStorage
   useEffect(() => {
@@ -28,194 +22,101 @@ const ExpensePage = () => {
     setCartTotal(total);
   }, []);
 
-  // Fetch customer data from API
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date
+      .toLocaleString("en-GB", {
+        year: "numeric",
+        month: "long",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      })
+      .replace("am", "AM")
+      .replace("pm", "PM");
+  };
+
   useEffect(() => {
-    const fetchCustomerData = async () => {
-      setLoading(true);
-      setError("");
+    const fetchExpenseData = async () => {
       try {
-        const response = await fetchCustomers();
-        setCustomers(response.data.customers || []);
+        const response = await fetchExpenses();
+        setExpenses(response.data.expense || []);
+        setFilteredExpenses(response.data.expense || []);
       } catch (err) {
-        console.error("Error fetching customers:", err.message);
-        setError(err.message || "Failed to load customers.");
-      } finally {
-        setLoading(false);
+        console.error("Error fetching expenses:", err.message);
       }
     };
 
-    fetchCustomerData();
+    fetchExpenseData();
   }, []);
 
-  const handleDeleteClick = (customer) => {
-    setCustomerToDelete(customer);
-    setIsDeleteModalOpen(true);
-  };
-
-  const handleDeleteCustomer = async () => {
-    if (!customerToDelete) return;
-
-    try {
-      await deleteCustomer(customerToDelete.id);
-      setCustomers((prev) => prev.filter((customer) => customer.id !== customerToDelete.id));
-      alert("Customer deleted successfully.");
-      setIsDeleteModalOpen(false);
-    } catch (err) {
-      console.error("Error deleting customer:", err.message);
-      alert(err.message || "Failed to delete customer.");
-    }
-  };
-
-  const handleEditClick = (customer) => {
-    setCustomerToEdit(customer);
-    setUpdatedName(customer.name);
-    setUpdatedEmail(customer.email);
-    setIsEditModalOpen(true);
-  };
-
-  const handleEditSubmit = async () => {
-    if (!updatedName || !updatedEmail) {
-      alert("Please fill in both fields.");
+  // Filter expenses by date range
+  useEffect(() => {
+    if (!startDate || !endDate) {
+      setFilteredExpenses(expenses);
       return;
     }
 
-    try {
-      const updatedCustomer = {
-        ...customerToEdit,
-        name: updatedName,
-        email: updatedEmail,
-      };
+    const filtered = expenses.filter((expense) => {
+      const expenseDate = new Date(expense.created_at).toISOString().split("T")[0];
+      return expenseDate >= startDate && expenseDate <= endDate;
+    });
 
-      await updateCustomer(updatedCustomer);
-      setCustomers((prev) => prev.map((customer) => (customer.id === updatedCustomer.id ? updatedCustomer : customer)));
-
-      alert("Customer updated successfully.");
-      setIsEditModalOpen(false);
-    } catch (err) {
-      console.error("Error updating customer:", err.message);
-      alert(err.message || "Failed to update customer.");
-    }
-  };
-
-  const filteredCustomers = customers.filter((customer) => customer.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    setFilteredExpenses(filtered);
+  }, [startDate, endDate, expenses]);
 
   return (
     <Layout cartTotal={cartTotal}>
       <div className="min-h-screen bg-gray-100 p-8">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">Customers</h2>
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">Expenses</h2>
 
-        {/* Search Bar */}
-        <div className="mb-6">
-          <input type="text" placeholder="Search customers..." className="w-full p-3 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-600" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+        {/* Date Filters */}
+        <div className="mb-6 flex flex-wrap items-center gap-4 bg-white p-4 rounded-lg shadow-md">
+          <div className="flex flex-col">
+            <label className="text-black-700 font-medium mb-1">Start Date</label>
+            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" />
+          </div>
+
+          <div className="flex flex-col">
+            <label className="text-black-700 font-medium mb-1">End Date</label>
+            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" />
+          </div>
         </div>
 
-        {/* Customer List */}
-        {loading ? (
-          <p>Loading customers...</p>
-        ) : error ? (
-          <p className="text-red-500">{error}</p>
-        ) : (
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-            {filteredCustomers.length === 0 ? (
-              <p className="p-6 text-gray-600">No customers found.</p>
-            ) : (
-              <table className="w-full text-left">
-                <thead className="bg-gray-200">
-                  <tr>
-                    <th className="py-3 px-4">Name</th>
-                    <th className="py-3 px-4">Email</th>
-                    <th className="py-3 px-4">Actions</th>
+        {/* Expense List */}
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+          <table className="w-full text-left">
+            <thead className="bg-gray-200">
+              <tr>
+                <th className="border p-2">Description</th>
+                <th className="border p-2">Date</th>
+                <th className="border p-2">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredExpenses.length > 0 ? (
+                filteredExpenses.map((expense) => (
+                  <tr key={expense.id} className="border">
+                    <td className="border p-2">{expense.description}</td>
+                    <td className="border p-2">{formatDate(expense.created_at)}</td>
+                    <td className="border p-2">
+                      {config.currencySign}
+                      {expense.amount}
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {filteredCustomers.map((customer) => (
-                    <tr key={customer.id} className="hover:bg-gray-100">
-                      <td className="py-3 px-4">{customer.name}</td>
-                      <td className="py-3 px-4">{customer.email}</td>
-                      <td className="py-3 px-4 flex items-center space-x-2">
-                        {/* Edit Button */}
-                        <button type="button" onClick={() => handleEditClick(customer)} className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 flex items-center">
-                          <FaEdit className="mr-2" />
-                          Edit
-                        </button>
-                        {/* Delete Button */}
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteClick(customer)} // Open delete modal
-                          className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900 flex items-center"
-                        >
-                          <FaTrash className="mr-2" />
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
-        )}
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="3" className="text-center p-4 text-gray-500">
+                    No expenses found for the selected dates.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
-
-      {/* Edit Modal */}
-      {isEditModalOpen && (
-        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-8 rounded-lg w-96">
-            <h2 className="text-2xl font-bold mb-6">Edit Customer</h2>
-
-            {/* Form Fields */}
-            <div className="mb-4">
-              <label htmlFor="name" className="block text-gray-700">
-                Name
-              </label>
-              <input id="name" type="text" value={updatedName} onChange={(e) => setUpdatedName(e.target.value)} className="w-full p-3 border rounded-md mt-2" />
-            </div>
-
-            <div className="mb-4">
-              <label htmlFor="email" className="block text-gray-700">
-                Email
-              </label>
-              <input id="email" type="email" value={updatedEmail} onChange={(e) => setUpdatedEmail(e.target.value)} className="w-full p-3 border rounded-md mt-2" />
-            </div>
-
-            {/* Horizontal Bar */}
-            <hr className="my-3 border-t border-gray-300" />
-
-            {/* Buttons */}
-            <div className="flex justify-end space-x-4">
-              <button onClick={() => setIsEditModalOpen(false)} className="text-gray-600 hover:text-gray-800 px-4 py-2 rounded-md">
-                Cancel
-              </button>
-              <button onClick={handleEditSubmit} className="text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md">
-                Save Changes
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Delete Modal */}
-      {isDeleteModalOpen && (
-        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-8 rounded-lg w-96">
-            <h2 className="text-2xl font-bold mb-6">Delete Customer</h2>
-            <p>Are you sure you want to delete this customer?</p>
-
-            {/* Horizontal Bar */}
-            <hr className="my-3 border-t border-gray-300" />
-
-            {/* Buttons */}
-            <div className="flex justify-end space-x-4">
-              <button onClick={() => setIsDeleteModalOpen(false)} className="text-gray-600 hover:text-gray-800 px-4 py-2 rounded-md">
-                Cancel
-              </button>
-              <button onClick={handleDeleteCustomer} className="text-white bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md">
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </Layout>
   );
 };
