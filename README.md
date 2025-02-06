@@ -10,6 +10,8 @@ The React Point-of-Sale (POS) System is a robust and scalable web application de
 - Secure data handling and API request validation.
 - The login module leverages the Laravel Sanctum API for secure user authentication. It integrates seamlessly with a MySQL database to manage user credentials and sessions. Additionally, the API token is stored in localStorage, ensuring a smooth and secure login experience for users.
 
+![React POS System](images/Login.png)
+
 ### Shopping Cart Management
 - LocalStorage integration to persist cart data across sessions.
 - Add, update, and remove items from the shopping cart dynamically.
