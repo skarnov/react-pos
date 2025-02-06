@@ -17,27 +17,43 @@ The React Point-of-Sale (POS) System is a robust and scalable web application de
 - Add, update, and remove items from the shopping cart dynamically.
 - The POS module was developed by gathering category and stock data, enabling stock browsing by category. Users can add selected items to a shopping cart, with quantities increasing by tapping. Additionally, an assigned customer function was included for future data analysis on customer preferences and purchasing patterns.
 
+![React POS System](images/POS.png)
+
 ### Sales Transactions
 - Process sales in real-time with an intuitive user interface.
 - Automatic stock updates based on sales.
 - Detailed transaction history for records and analytics.
 
+![React POS System](images/Invoice.png)
+
 ### Stock Management
 - Add, edit, and delete stock items.
 - Real-time updates to stock levels upon sales transactions.
 - Stock categorisation for efficient organisation.
+
+![React POS System](images/Add_Stock.png)
+
 - The stock module enables users to add stocks by selecting a category, uploading images, and specifying details such as SKU (Stock Keeping Unit), barcodes, descriptions, and product specifications.
+
+![React POS System](images/Stocks_Management.png)
+
 - The stock module is a critical component of the POS application. It allows managing different buying and selling prices for products, which can vary over time. This module helps track multiple instances of the same product with different stock entries to reflect varying prices.
 
 ### Product Management
 - Manage products and categories dynamically.
 - Seamless integration with stock management.
 
+![React POS System](images/Add_Product.png)
+
 ### Income Management
 - The income module automatically calculates income when sales occur by subtracting the buying price from the selling price. The calculated income is then stored in the income module.
 
+![React POS System](images/Income.png)
+
 ### Expense Tracking
 - The expenses module is designed to track various shop expenses such as salaries and rent. All expense records are stored in this module.
+
+![React POS System](images/Expense.png)
 
 ### Reports Module
 The Reports Module in the POS system provides a comprehensive comparison of sales, income, and expenses between the current and previous years. This module is essential for business analysis, allowing users to track financial performance over time and make data-driven decisions.
@@ -62,6 +78,8 @@ The Reports Module in the POS system provides a comprehensive comparison of sale
 #### Business Performance Analysis
 - By comparing income and expenses, businesses can evaluate net profit trends.
 - The module helps in forecasting and identifying cost-saving opportunities.
+
+![React POS System](images/Report.png)
 
 #### Technical Implementation
 - The module retrieves financial data from the database and processes it for visualisation.
