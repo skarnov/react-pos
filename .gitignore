@@ -1,5 +1,0 @@
-.gitignore
-node_modules
-/nbproject/private/
-.env
-.DS_Store
