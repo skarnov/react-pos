@@ -116,8 +116,3 @@ The Reports Module in the POS system provides a comprehensive comparison of sale
 - Role-based access control (RBAC) for multi-user management.
 - Cloud deployment for better scalability and accessibility.
 - Integration with payment gateways for seamless transactions.
-
-## Conclusion
-The React POS System demonstrates my ability to develop scalable, secure, and efficient web applications using modern technologies. This project reflects my expertise in React, Laravel, RESTful API development, authentication, and database management. I am eager to contribute my skills to your organisation and take on new challenges in the field of Full-Stack Web Development.
-
-For more details, please visit the GitHub repository: [React POS System](https://github.com/skarnov/react-pos/)
