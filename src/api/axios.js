@@ -77,13 +77,14 @@ export const checkout = async (saleData) => {
   }
 };
 
-export const fetchCustomers = async () => {
+export const fetchCustomers = async (params = {}) => {
   try {
-    const response = await axiosInstance.post("/customer");
-    return response;
+    const { data } = await axiosInstance.post("/customer", params);
+    return data;
   } catch (error) {
     console.error("Fetch Customers Error:", error);
-    throw new Error(error?.response?.data?.message || "Error fetching customers");
+    const message = error?.response?.data?.message || error?.message || "Error fetching customers";
+    throw new Error(message);
   }
 };
 
@@ -121,12 +122,14 @@ export const deleteCustomer = async (customerId) => {
   }
 };
 
-export const fetchCategories = async (data) => {
+export const fetchCategories = async (params = {}) => {
   try {
-    const response = await axiosInstance.post("/category", data);
-    return response;
+    const { data } = await axiosInstance.post("/category", params);
+    return data;
   } catch (error) {
-    throw new Error(error?.response?.data?.message || "Error fetching categories");
+    console.error("Fetch Customers Error:", error);
+    const message = error?.response?.data?.message || error?.message || "Error fetching categories";
+    throw new Error(message);
   }
 };
 
@@ -182,29 +185,38 @@ export const saveProduct = async (data) => {
   }
 };
 
-export const updateProduct = async (product) => {
+export const updateProduct = async (id, productData) => {
   try {
-    const formData = new FormData();
-    formData.append("name", product.name);
-    formData.append("status", product.status || "active");
-    formData.append("fk_category_id", product.category_id);
-    formData.append("description", product.description);
-    formData.append("sku", product.sku);
-    formData.append("barcode", product.barcode);
-    formData.append("specification", product.specification);
-    
-    if (product.image) {
-      formData.append("image", product.image);
+    // Validate required fields
+    const requiredFields = ["name", "sku", "barcode", "status"];
+    const missingFields = requiredFields.filter((field) => !productData[field]);
+
+    if (missingFields.length > 0) {
+      throw new Error(`Missing required fields: ${missingFields.join(", ")}`);
     }
 
-    const response = await axiosInstance.post(`/update-product/${product.id}`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
+    const formData = new FormData();
+
+    // Append all fields
+    Object.entries(productData).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        formData.append(key, value);
+      }
     });
 
-    return response;
+    const response = await axiosInstance.post(`/update-product/${id}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+      timeout: 10000,
+    });
+
+    if (!response.data?.success) {
+      throw new Error(response.data?.message || "Update failed");
+    }
+
+    return response.data;
   } catch (error) {
-    console.error("Update Product Error:", error);
-    throw new Error(error?.response?.data?.message || "Error updating product");
+    console.error("Update failed:", error.message);
+    throw error;
   }
 };
 

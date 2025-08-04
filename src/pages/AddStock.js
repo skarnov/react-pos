@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { saveStock, fetchProducts } from "../api/axios";
 import Layout from "../layout/Layout";
-import { FaSave } from "react-icons/fa";
+import { FaSave, FaBoxes, FaArrowLeft } from "react-icons/fa";
 
 const AddStock = () => {
   const [formData, setFormData] = useState({
@@ -24,7 +24,6 @@ const AddStock = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
 
-  // Calculate the cart total from localStorage
   useEffect(() => {
     const calculateCartTotal = () => {
       const cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -89,12 +88,13 @@ const AddStock = () => {
     form.append("status", getValueOrNull(formData.status));
 
     try {
+      setLoading(true);
       const response = await saveStock(form);
       if (response.status === 200 || response.status === 201) {
         setSuccess(true);
         setError(null);
         setFormData({
-          fk_product_id: "",
+          product_id: "",
           lot: "",
           batch: "",
           quantity: "",
@@ -111,88 +111,141 @@ const AddStock = () => {
     } catch (err) {
       setError(err.message || "Failed to save stock.");
       setSuccess(false);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <Layout cartTotal={cartTotal}>
-      <div className="p-8">
-        <h2 className="text-2xl font-bold mb-4">Add Stock</h2>
-
-        {/* Success Message */}
-        {success && (
-          <div className="text-green-500 bg-green-100 border border-green-400 rounded p-4 mb-4">
-            <strong>Success!</strong> Stock added successfully. Redirecting...
+      <div className="min-h-screen bg-white text-gray-900 p-4 md:p-6">
+        <div className="w-full">
+          <div className="flex items-center mb-6">
+            <div className="bg-indigo-600 p-2 md:p-3 rounded-full mr-3 md:mr-4">
+              <FaBoxes className="text-white text-lg md:text-xl" />
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900">Add New Stock</h1>
           </div>
-        )}
 
-        {/* Error Message */}
-        {error && (
-          <div className="text-red-500 bg-red-100 border border-red-400 rounded p-4 mb-4">
-            <strong>Error:</strong> {error}
-          </div>
-        )}
+          {/* Success Message */}
+          {success && (
+            <div className="mb-4 md:mb-6 p-3 md:p-4 bg-green-100 border-l-4 border-green-500 text-green-700 rounded">
+              <div className="flex items-center">
+                <svg className="w-4 h-4 md:w-5 md:h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span className="text-sm md:text-base">
+                  <strong>Success!</strong> Stock added successfully. Redirecting...
+                </span>
+              </div>
+            </div>
+          )}
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-8">
-          {/* Left Column */}
-          <div>
-            <div className="mb-4 relative">
-              <label className="block font-medium mb-2">Select Product</label>
-              <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search products..." onFocus={() => setIsOpen(true)} className="w-full border px-4 py-2 rounded-lg" disabled={loading} />
-              {isOpen && (
-                <div className="absolute z-10 bg-white border rounded w-full shadow-md max-h-60 overflow-y-auto">
-                  {products.filter((p) => p.name.toLowerCase().includes(search.toLowerCase())).length > 0 ? (
-                    products
-                      .filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))
-                      .map((product) => (
-                        <div key={product.id} onClick={() => handleProductSelect(product)} className="p-2 cursor-pointer hover:bg-gray-100">
-                          {product.name}
+          {/* Error Message */}
+          {error && (
+            <div className="mb-4 md:mb-6 p-3 md:p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded">
+              <div className="flex items-center">
+                <svg className="w-4 h-4 md:w-5 md:h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+                <span className="text-sm md:text-base">
+                  <strong>Error:</strong> {error}
+                </span>
+              </div>
+            </div>
+          )}
+
+          <div className="bg-white rounded-lg md:rounded-xl shadow-sm md:shadow-md overflow-hidden border border-gray-200">
+            <div className="p-4 sm:p-6 md:p-8">
+              <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Left Column */}
+                  <div className="space-y-4 md:space-y-6">
+                    <div className="relative">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Select Product *</label>
+                      <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search products..." onFocus={() => setIsOpen(true)} className="w-full px-3 py-2 md:px-4 md:py-3 border border-gray-300 rounded-md md:rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition bg-white text-gray-900" disabled={loading} />
+                      {isOpen && (
+                        <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                          {products.filter((p) => p.name.toLowerCase().includes(search.toLowerCase())).length > 0 ? (
+                            products
+                              .filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))
+                              .map((product) => (
+                                <div key={product.id} onClick={() => handleProductSelect(product)} className="p-2 md:p-3 cursor-pointer hover:bg-gray-100 text-sm md:text-base">
+                                  {product.name}
+                                </div>
+                              ))
+                          ) : (
+                            <div className="p-2 md:p-3 text-gray-500 text-sm md:text-base">No products found</div>
+                          )}
                         </div>
-                      ))
-                  ) : (
-                    <div className="p-2 text-gray-500 text-sm">No products found</div>
-                  )}
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Batch *</label>
+                      <input type="text" name="batch" value={formData.batch} onChange={handleChange} required className="w-full px-3 py-2 md:px-4 md:py-3 border border-gray-300 rounded-md md:rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition bg-white text-gray-900" />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">LOT *</label>
+                      <input type="text" name="lot" value={formData.lot} onChange={handleChange} required className="w-full px-3 py-2 md:px-4 md:py-3 border border-gray-300 rounded-md md:rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition bg-white text-gray-900" />
+                    </div>
+                  </div>
+
+                  {/* Right Column */}
+                  <div className="space-y-4 md:space-y-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Quantity *</label>
+                      <input type="number" name="quantity" value={formData.quantity} onChange={handleChange} required className="w-full px-3 py-2 md:px-4 md:py-3 border border-gray-300 rounded-md md:rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition bg-white text-gray-900" />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Buy Price *</label>
+                      <input type="number" name="buy_price" value={formData.buy_price} onChange={handleChange} required className="w-full px-3 py-2 md:px-4 md:py-3 border border-gray-300 rounded-md md:rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition bg-white text-gray-900" />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Sale Price *</label>
+                      <input type="number" name="sale_price" value={formData.sale_price} onChange={handleChange} required className="w-full px-3 py-2 md:px-4 md:py-3 border border-gray-300 rounded-md md:rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition bg-white text-gray-900" />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Status *</label>
+                      <select name="status" value={formData.status} onChange={handleChange} className="w-full px-3 py-2 md:px-4 md:py-3 border border-gray-300 rounded-md md:rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition appearance-none bg-white text-gray-900">
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="archive">Archive</option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
-              )}
-            </div>
-            <div className="mb-4">
-              <label className="block font-medium mb-2">Batch</label>
-              <input type="text" name="batch" value={formData.batch} onChange={handleChange} required className="w-full border px-4 py-2 rounded-lg" />
-            </div>
-            <div className="mb-4">
-              <label className="block font-medium mb-2">LOT</label>
-              <input type="text" name="lot" value={formData.lot} onChange={handleChange} required className="w-full border px-4 py-2 rounded-lg" />
-            </div>
-            <div className="mb-4">
-              <label className="block font-medium mb-2">Status</label>
-              <select name="status" value={formData.status} onChange={handleChange} className="w-full border px-4 py-2 rounded-lg">
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-                <option value="archive">Archive</option>
-              </select>
-            </div>
-          </div>
-          {/* Right Column */}
-          <div>
-            <div className="mb-4">
-              <label className="block font-medium mb-2">Quantity</label>
-              <input type="number" name="quantity" value={formData.quantity} onChange={handleChange} required className="w-full border px-4 py-2 rounded-lg" />
-            </div>
-            <div className="mb-4">
-              <label className="block font-medium mb-2">Buy Price</label>
-              <input type="number" name="buy_price" value={formData.buy_price} onChange={handleChange} required className="w-full border px-4 py-2 rounded-lg" />
-            </div>
-            <div className="mb-4">
-              <label className="block font-medium mb-2">Sale Price</label>
-              <input type="number" name="sale_price" value={formData.sale_price} onChange={handleChange} required className="w-full border px-4 py-2 rounded-lg" />
+
+                <div className="pt-2 md:pt-4 flex justify-between">
+                  <button type="button" onClick={() => navigate(-1)} className="px-4 py-2 md:px-6 md:py-3 border border-gray-300 rounded-md md:rounded-lg shadow-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition text-sm md:text-base">
+                    <FaArrowLeft className="mr-2 inline" />
+                    Cancel
+                  </button>
+                  <button type="submit" disabled={loading} className="px-4 py-2 md:px-6 md:py-3 border border-transparent rounded-md md:rounded-lg shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed">
+                    {loading ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <FaSave className="mr-2 inline" />
+                        Add Stock
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
-          <div className="col-span-2">
-            <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center">
-              <FaSave className="mr-2" /> Add Stock
-            </button>
-          </div>
-        </form>
+        </div>
       </div>
     </Layout>
   );
