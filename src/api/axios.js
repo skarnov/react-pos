@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: process.env.REACT_APP_API_BASE_URL,
+  baseURL: process.env.REACT_APP_LOCAL_URL,
   withCredentials: true,
 });
 
@@ -24,7 +24,7 @@ const getAuthHeaders = (token) => ({
 
 export const login = async (data) => {
   try {
-    const response = await axiosInstance.post("/login", data);
+    const response = await axiosInstance.post("login", data);
     return response;
   } catch (error) {
     throw new Error(error?.response?.data?.message || "Login failed");

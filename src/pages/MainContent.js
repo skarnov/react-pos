@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { fetchDashboardCategories, fetchProductsByCategory, checkout, fetchCustomers } from "../api/axios";
 import { useConfig } from "../contexts/ConfigContext";
+import { FaSearch, FaTrash, FaPlus, FaMinus } from "react-icons/fa";
 
 const AdvancedDropdown = ({ customers, selectedCustomer, setSelectedCustomer }) => {
   const [search, setSearch] = useState("");
   const [isOpen, setIsOpen] = useState(false);
 
-  const filteredCustomers = customers.filter((customer) => customer.name.toLowerCase().includes(search.toLowerCase()));
+  const filteredCustomers = customers.filter((customer) => 
+    customer.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   useEffect(() => {
     if (selectedCustomer) {
@@ -22,30 +25,41 @@ const AdvancedDropdown = ({ customers, selectedCustomer, setSelectedCustomer }) 
   };
 
   return (
-    <div className="mt-4 relative">
-      <h2 className="text-xl font-semibold text-gray-800 mb-2">Assign Customer</h2>
+    <div className="mt-6 relative">
+      <h2 className="text-lg font-semibold text-gray-700 mb-2">Assign Customer</h2>
       <div className="relative">
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search customers..."
-          onFocus={() => setIsOpen(true)} // Open the dropdown when the input is focused
-          className="p-2 border rounded w-full mb-2"
-        />
+        <div className="relative">
+          <FaSearch className="absolute left-3 top-3 text-gray-400" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search customers..."
+            onFocus={() => setIsOpen(true)}
+            className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
         {isOpen && (
-          <div className="absolute z-10 bg-white border rounded w-full shadow-md max-h-60 overflow-y-auto">
+          <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
             {filteredCustomers.length > 0 ? (
               filteredCustomers.map((customer) => (
-                <div key={customer.id} onClick={() => handleCustomerSelect(customer)} className={`p-2 cursor-pointer hover:bg-gray-100 flex items-center ${selectedCustomer === customer.id ? "bg-gray-200" : ""}`}>
-                  <div className="flex flex-col">
-                    <span className="font-medium">{customer.name}</span>
-                    <span className="text-sm text-gray-500">Email: {customer.email || "N/A"}</span>
+                <div 
+                  key={customer.id} 
+                  onClick={() => handleCustomerSelect(customer)} 
+                  className={`p-3 cursor-pointer hover:bg-blue-50 flex items-center border-b border-gray-100 last:border-0 ${
+                    selectedCustomer === customer.id ? "bg-blue-100" : ""
+                  }`}
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-gray-800 truncate">{customer.name}</p>
+                    <p className="text-sm text-gray-500 truncate">
+                      {customer.email || "No email provided"}
+                    </p>
                   </div>
                 </div>
               ))
             ) : (
-              <div className="p-2 text-gray-500 text-sm">No customers found</div>
+              <div className="p-3 text-gray-500 text-sm text-center">No customers found</div>
             )}
           </div>
         )}
@@ -77,7 +91,10 @@ const MainContent = ({ updateCartTotal }) => {
       setLoading(true);
       setError("");
       try {
-        const [categoriesResponse, customersResponse] = await Promise.all([fetchDashboardCategories(), fetchCustomers()]);
+        const [categoriesResponse, customersResponse] = await Promise.all([
+          fetchDashboardCategories(), 
+          fetchCustomers()
+        ]);
         setCategories(categoriesResponse.data.categories || []);
         setCustomers(customersResponse.data.customers || []);
         if (categoriesResponse.data.categories.length > 0) {
@@ -133,7 +150,9 @@ const MainContent = ({ updateCartTotal }) => {
     setCart((prevCart) => {
       const existingProduct = prevCart.find((item) => item.id === product.id);
       if (existingProduct) {
-        return prevCart.map((item) => (item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item));
+        return prevCart.map((item) => 
+          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+        );
       } else {
         return [...prevCart, { ...product, quantity: 1 }];
       }
@@ -145,11 +164,20 @@ const MainContent = ({ updateCartTotal }) => {
   };
 
   const updateQuantity = (productId, quantity) => {
-    setCart((prevCart) => prevCart.map((item) => (item.id === productId ? { ...item, quantity } : item)));
+    if (quantity < 1) return;
+    setCart((prevCart) => 
+      prevCart.map((item) => 
+        item.id === productId ? { ...item, quantity } : item
+      )
+    );
   };
 
   const calculateTotal = () => {
-    return cart.reduce((total, item) => total + parseFloat(item.sale_price.replace(/[^0-9.-]+/g, "")) * item.quantity, 0).toFixed(2);
+    return cart
+      .reduce((total, item) => 
+        total + parseFloat(item.sale_price.replace(/[^0-9.-]+/g, "")) * item.quantity, 
+      0)
+      .toFixed(2);
   };
 
   const handleCheckout = async () => {
@@ -179,89 +207,188 @@ const MainContent = ({ updateCartTotal }) => {
   };
 
   return (
-    <div className="flex min-h-screen">
-      <div className="flex-1">
-        <main className="bg-gray-50 p-6">
-          {loading ? (
-            <p>Loading...</p>
-          ) : error ? (
-            <p className="text-red-500">{error}</p>
-          ) : (
-            <>
-              {/* Categories Section */}
-              <div className="mb-6">
-                <h2 className="text-xl font-semibold text-gray-800">Categories</h2>
-                <div className="flex space-x-4 mt-4">
-                  {categories.map((category) => (
-                    <button key={category.id} className={`flex flex-col items-center p-4 ${selectedCategory === category.id ? "bg-blue-200" : "bg-gray-100 hover:bg-gray-200"} rounded-lg`} onClick={() => handleCategoryClick(category.id)}>
-                      <span className="text-sm text-gray-600">{category.name}</span>
-                    </button>
-                  ))}
-                </div>
+    <div className="flex min-h-screen bg-gray-50">
+      <div className="flex-1 p-6">
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          </div>
+        ) : error ? (
+          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4" role="alert">
+            <p className="font-bold">Error</p>
+            <p>{error}</p>
+          </div>
+        ) : (
+          <>
+            {/* Categories Section */}
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">Categories</h2>
+              <div className="flex space-x-4 overflow-x-auto pb-2">
+                {categories.map((category) => (
+                  <button
+                    key={category.id}
+                    className={`flex-shrink-0 px-6 py-3 rounded-lg transition-all ${
+                      selectedCategory === category.id
+                        ? "bg-blue-600 text-white shadow-md"
+                        : "bg-white text-gray-700 hover:bg-gray-100 shadow-sm"
+                    }`}
+                    onClick={() => handleCategoryClick(category.id)}
+                  >
+                    <span className="font-medium">{category.name}</span>
+                  </button>
+                ))}
               </div>
+            </div>
 
-              {/* Products and Cart Section */}
-              <div className="flex space-x-12">
-                <div className="flex-1">
-                  <h2 className="text-xl font-semibold text-gray-800 mb-4">Products</h2>
-                  <div className="grid grid-cols-4 gap-6 max-h-[600px] overflow-y-auto">
-                    {products.map((product) => (
-                      <div key={product.id} onClick={() => addToCart(product)} className="bg-white shadow-lg p-4 rounded-lg transform hover:scale-105 transition">
-                        <img src={`${baseUrl}/uploads/${product.image}`} alt={product.name} className="w-full h-32 object-cover rounded-lg mb-4" />
-                        <h3 className="text-lg font-semibold">{product.name}</h3>
-                        <p>
+            {/* Products and Cart Section */}
+            <div className="flex flex-col lg:flex-row gap-8">
+              {/* Products Section */}
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold text-gray-800 mb-6">Products</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  {products.map((product) => (
+                    <div
+                      key={product.id}
+                      onClick={() => addToCart(product)}
+                      className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group"
+                    >
+                      <div className="relative pb-[75%]">
+                        <img
+                          src={`${baseUrl}/uploads/${product.image}`}
+                          alt={product.name}
+                          className="absolute h-full w-full object-cover"
+                        />
+                      </div>
+                      <div className="p-4">
+                        <h3 className="font-semibold text-lg text-gray-800 mb-1 group-hover:text-blue-600 transition-colors">
+                          {product.name}
+                        </h3>
+                        <p className="text-blue-600 font-bold">
                           {config.currencySign}
                           {product.sale_price}
                         </p>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
+              </div>
 
-                {/* Cart Section */}
-                <div className="w-96 bg-white shadow-md p-6 rounded-lg mt-11">
-                  <h2 className="text-xl font-semibold text-gray-800 mb-4">Shopping Cart</h2>
+              {/* Cart Section */}
+              <div className="w-full lg:w-96">
+                <div className="bg-white rounded-xl shadow-md p-6 sticky top-6">
+                  <h2 className="text-2xl font-bold text-gray-800 mb-6">Shopping Cart</h2>
+                  
                   {cart.length === 0 ? (
-                    <p className="text-gray-500">Your cart is empty.</p>
+                    <div className="text-center py-8">
+                      <p className="text-gray-500">Your cart is empty</p>
+                      <p className="text-sm text-gray-400 mt-2">
+                        Click on products to add them to your cart
+                      </p>
+                    </div>
                   ) : (
-                    <div>
-                      {cart.map((item) => (
-                        <div key={item.id} className="flex items-center justify-between border-b py-4">
-                          <div className="flex-1">
-                            <h3 className="text-lg font-medium text-gray-700">{item.name}</h3>
-                            <p className="text-sm text-gray-500">
-                              Price: {config.currencySign}
-                              {item.sale_price}
-                            </p>
+                    <div className="space-y-4">
+                      <div className="max-h-[400px] overflow-y-auto pr-2">
+                        {cart.map((item) => (
+                          <div
+                            key={item.id}
+                            className="flex items-start gap-4 py-4 border-b border-gray-100 last:border-0"
+                          >
+                            <div className="flex-shrink-0 w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
+                              {item.image && (
+                                <img
+                                  src={`${baseUrl}/uploads/${item.image}`}
+                                  alt={item.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-medium text-gray-800 truncate">
+                                {item.name}
+                              </h3>
+                              <p className="text-sm text-gray-500">
+                                {config.currencySign}
+                                {item.sale_price} each
+                              </p>
+                              <div className="flex items-center mt-2">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    updateQuantity(item.id, item.quantity - 1);
+                                  }}
+                                  className="text-gray-500 hover:text-blue-600 p-1"
+                                >
+                                  <FaMinus size={12} />
+                                </button>
+                                <input
+                                  type="number"
+                                  value={item.quantity}
+                                  min="1"
+                                  onChange={(e) =>
+                                    updateQuantity(item.id, parseInt(e.target.value, 10))
+                                  }
+                                  className="w-12 text-center border-0 border-b border-gray-200 focus:border-blue-500 focus:ring-0 mx-1"
+                                />
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    updateQuantity(item.id, item.quantity + 1);
+                                  }}
+                                  className="text-gray-500 hover:text-blue-600 p-1"
+                                >
+                                  <FaPlus size={12} />
+                                </button>
+                              </div>
+                            </div>
+                            <div className="flex flex-col items-end">
+                              <p className="font-medium">
+                                {config.currencySign}
+                                {(parseFloat(item.sale_price.replace(/[^0-9.-]+/g, "")) * item.quantity).toFixed(2)}
+                              </p>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  removeFromCart(item.id);
+                                }}
+                                className="text-red-500 hover:text-red-700 mt-2"
+                              >
+                                <FaTrash size={14} />
+                              </button>
+                            </div>
                           </div>
-                          <div className="flex items-center space-x-2">
-                            <input type="number" value={item.quantity} min="1" className="w-16 p-1 border rounded text-center" onChange={(e) => updateQuantity(item.id, parseInt(e.target.value, 10))} />
-                            <button onClick={() => removeFromCart(item.id)} className="text-red-500 hover:text-red-700">
-                              Remove
-                            </button>
-                          </div>
+                        ))}
+                      </div>
+
+                      {/* Customer Selection */}
+                      <AdvancedDropdown 
+                        customers={customers} 
+                        selectedCustomer={selectedCustomer} 
+                        setSelectedCustomer={setSelectedCustomer} 
+                      />
+
+                      {/* Checkout Section */}
+                      <div className="mt-6 pt-4 border-t border-gray-200">
+                        <div className="flex justify-between items-center mb-4">
+                          <span className="font-medium text-gray-700">Subtotal:</span>
+                          <span className="font-semibold">
+                            {config.currencySign}
+                            {calculateTotal()}
+                          </span>
                         </div>
-                      ))}
-
-                      {/* Advanced Customer Dropdown */}
-                      <AdvancedDropdown customers={customers} selectedCustomer={selectedCustomer} setSelectedCustomer={setSelectedCustomer} />
-
-                      <div className="mt-4">
-                        <h3 className="text-lg font-semibold text-gray-800">
-                          Total: {config.currencySign}
-                          {calculateTotal()}
-                        </h3>
-                        <button onClick={handleCheckout} className="w-full bg-blue-600 text-white py-2 px-4 mt-4 rounded hover:bg-blue-700 transition">
-                          Checkout
+                        <button
+                          onClick={handleCheckout}
+                          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-colors shadow-md hover:shadow-lg"
+                        >
+                          Checkout Now
                         </button>
                       </div>
                     </div>
                   )}
                 </div>
               </div>
-            </>
-          )}
-        </main>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

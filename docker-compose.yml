@@ -1,13 +1,12 @@
-version: '3.8'
-
 services:
   react-pos:
+    container_name: react-pos
     build: .
     ports:
       - "3000:3000"
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=${NODE_ENV}
     volumes:
-      - ../react-pos:/app
+      - .:/app
       - /app/node_modules
     command: npm start

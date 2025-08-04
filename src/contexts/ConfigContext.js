@@ -19,6 +19,12 @@ const ConfigProvider = ({ children }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
     const fetchConfigurationData = async () => {
       try {
         const response = await fetchConfiguration();
@@ -46,11 +52,7 @@ const ConfigProvider = ({ children }) => {
     fetchConfigurationData();
   }, []);
 
-  return (
-    <ConfigContext.Provider value={{ config, loading, error }}>
-      {children}
-    </ConfigContext.Provider>
-  );
+  return <ConfigContext.Provider value={{ config, loading, error }}>{children}</ConfigContext.Provider>;
 };
 
 const useConfig = () => {
