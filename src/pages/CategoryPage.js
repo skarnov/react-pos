@@ -167,13 +167,7 @@ const CategoryPage = () => {
   };
 
   // UI Components - identical to CustomerPage
-  const StatusBadge = ({ status }) => (
-    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-      status === "active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-    }`}>
-      {status.charAt(0).toUpperCase() + status.slice(1)}
-    </span>
-  );
+  const StatusBadge = ({ status }) => <span className={`px-3 py-1 rounded-full text-xs font-semibold ${status === "active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>{status.charAt(0).toUpperCase() + status.slice(1)}</span>;
 
   const Notification = () => {
     if (!state.notification) return null;
@@ -221,43 +215,47 @@ const CategoryPage = () => {
     }
 
     return (
-      <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200">
-        <div className="hidden sm:block">
-          <p className="text-sm text-gray-700">
-            Showing <span className="font-medium">{(state.currentPage - 1) * state.perPage + 1}</span> to <span className="font-medium">{Math.min(state.currentPage * state.perPage, state.total)}</span> of <span className="font-medium">{state.total}</span> categories
-          </p>
+      <div className="flex flex-col sm:flex-row items-center justify-between px-4 py-3 border-t border-gray-200 gap-4">
+        {/* Items per page selector and info */}
+        <div className="flex items-center gap-4">
+          <div className="flex items-center">
+            <label htmlFor="perPage" className="mr-2 text-sm text-gray-600 whitespace-nowrap">
+              Show:
+            </label>
+            <select id="perPage" value={state.perPage} onChange={handlePerPageChange} className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+              {[5, 10, 15, 20, 25].map((num) => (
+                <option key={num} value={num}>
+                  {num}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="hidden sm:block text-sm text-gray-600">
+            <p>
+              Showing <span className="font-medium">{(state.currentPage - 1) * state.perPage + 1}</span> to <span className="font-medium">{Math.min(state.currentPage * state.perPage, state.total)}</span> of <span className="font-medium">{state.total}</span> items
+            </p>
+          </div>
         </div>
-        <div className="flex-1 flex justify-between sm:justify-end">
-          <button 
-            onClick={() => handlePageChange(state.currentPage - 1)} 
-            disabled={state.currentPage === 1} 
-            className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${
-              state.currentPage === 1 ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-white text-gray-700 hover:bg-gray-50"
-            }`}
-          >
-            <FaChevronLeft className="h-3 w-3 mr-1" /> Previous
+
+        {/* Pagination controls */}
+        <div className="flex items-center gap-2">
+          <button onClick={() => handlePageChange(state.currentPage - 1)} disabled={state.currentPage === 1} className={`relative inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md ${state.currentPage === 1 ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-white text-gray-700 hover:bg-gray-50"}`}>
+            <FaChevronLeft className="h-3 w-3 mr-1" />
+            <span className="hidden sm:inline">Previous</span>
           </button>
-          <div className="hidden sm:flex mx-2">
+
+          <div className="flex gap-1">
             {pageNumbers.map((page) => (
-              <button 
-                key={page} 
-                onClick={() => handlePageChange(page)} 
-                className={`mx-1 px-3 py-1 border text-sm font-medium rounded-md ${
-                  page === state.currentPage ? "bg-blue-500 border-blue-500 text-white" : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
-                }`}
-              >
+              <button key={page} onClick={() => handlePageChange(page)} className={`w-9 h-9 flex items-center justify-center text-sm font-medium rounded-md ${page === state.currentPage ? "bg-blue-600 border-blue-600 text-white" : "border border-gray-300 text-gray-700 hover:bg-gray-50"}`}>
                 {page}
               </button>
             ))}
           </div>
-          <button 
-            onClick={() => handlePageChange(state.currentPage + 1)} 
-            disabled={state.currentPage === state.lastPage} 
-            className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${
-              state.currentPage === state.lastPage ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-white text-gray-700 hover:bg-gray-50"
-            }`}
-          >
-            Next <FaChevronRight className="h-3 w-3 ml-1" />
+
+          <button onClick={() => handlePageChange(state.currentPage + 1)} disabled={state.currentPage === state.lastPage} className={`relative inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md ${state.currentPage === state.lastPage ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-white text-gray-700 hover:bg-gray-50"}`}>
+            <span className="hidden sm:inline">Next</span>
+            <FaChevronRight className="h-3 w-3 ml-1" />
           </button>
         </div>
       </div>
@@ -344,9 +342,7 @@ const CategoryPage = () => {
                         <tr key={category.id} className="hover:bg-gray-50">
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
-                              <div className="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-medium">
-                                {category.name.charAt(0).toUpperCase()}
-                              </div>
+                              <div className="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-medium">{category.name.charAt(0).toUpperCase()}</div>
                               <div className="ml-4">
                                 <div className="text-sm font-medium text-gray-900">{category.name}</div>
                                 <div className="text-xs text-gray-500">ID: {category.id}</div>
@@ -357,16 +353,10 @@ const CategoryPage = () => {
                             <StatusBadge status={category.status} />
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <button 
-                              onClick={() => handleEditClick(category)} 
-                              className="text-blue-600 hover:text-blue-900 mr-4 inline-flex items-center"
-                            >
+                            <button onClick={() => handleEditClick(category)} className="text-blue-600 hover:text-blue-900 mr-4 inline-flex items-center">
                               <FaEdit className="mr-1" /> Edit
                             </button>
-                            <button 
-                              onClick={() => handleDeleteClick(category)} 
-                              className="text-red-600 hover:text-red-900 inline-flex items-center"
-                            >
+                            <button onClick={() => handleDeleteClick(category)} className="text-red-600 hover:text-red-900 inline-flex items-center">
                               <FaTrash className="mr-1" /> Delete
                             </button>
                           </td>
@@ -376,23 +366,6 @@ const CategoryPage = () => {
                   </table>
                 </div>
                 <Pagination />
-                <div className="flex items-center p-4">
-                  <label htmlFor="perPage" className="mr-2 text-sm text-gray-600 whitespace-nowrap">
-                    Show:
-                  </label>
-                  <select 
-                    id="perPage" 
-                    value={state.perPage} 
-                    onChange={handlePerPageChange} 
-                    className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    {[5, 10, 15, 20, 25].map((num) => (
-                      <option key={num} value={num}>
-                        {num}
-                      </option>
-                    ))}
-                  </select>
-                </div>
               </>
             )}
           </div>
@@ -400,117 +373,81 @@ const CategoryPage = () => {
 
         {/* Edit Modal */}
 
-{modal.isEditOpen && (
-  <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50 p-4">
-    <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
-      <div className="p-6">
-        <div className="flex justify-between items-start">
-          <h3 className="text-lg font-medium text-gray-900">Edit Category</h3>
-          <button 
-            onClick={() => setModal((prev) => ({ ...prev, isEditOpen: false }))} 
-            className="text-gray-400 hover:text-gray-500"
-          >
-            <span className="sr-only">Close</span>
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+        {modal.isEditOpen && (
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+              <div className="p-6">
+                <div className="flex justify-between items-start">
+                  <h3 className="text-lg font-medium text-gray-900">Edit Category</h3>
+                  <button onClick={() => setModal((prev) => ({ ...prev, isEditOpen: false }))} className="text-gray-400 hover:text-gray-500">
+                    <span className="sr-only">Close</span>
+                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
 
-        <div className="mt-6 space-y-4">
-          <div>
-            <label htmlFor="edit-name" className="block text-sm font-medium text-gray-700">
-              Name <span className="text-red-500">*</span>
-            </label>
-            <input 
-              id="edit-name" 
-              name="name" 
-              type="text" 
-              value={form.name} 
-              onChange={handleFormChange} 
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" 
-              required 
-            />
-          </div>
+                <div className="mt-6 space-y-4">
+                  <div>
+                    <label htmlFor="edit-name" className="block text-sm font-medium text-gray-700">
+                      Name <span className="text-red-500">*</span>
+                    </label>
+                    <input id="edit-name" name="name" type="text" value={form.name} onChange={handleFormChange} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required />
+                  </div>
 
-          <div>
-            <label htmlFor="edit-status" className="block text-sm font-medium text-gray-700">
-              Status <span className="text-red-500">*</span>
-            </label>
-            <select 
-              id="edit-status" 
-              name="status" 
-              value={form.status} 
-              onChange={handleFormChange} 
-              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md" 
-              required
-            >
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-          </div>
-        </div>
-      </div>
+                  <div>
+                    <label htmlFor="edit-status" className="block text-sm font-medium text-gray-700">
+                      Status <span className="text-red-500">*</span>
+                    </label>
+                    <select id="edit-status" name="status" value={form.status} onChange={handleFormChange} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md" required>
+                      <option value="active">Active</option>
+                      <option value="inactive">Inactive</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
 
-      <div className="px-6 py-4 bg-gray-50 flex justify-end space-x-3">
-        <button 
-          type="button" 
-          onClick={() => setModal((prev) => ({ ...prev, isEditOpen: false }))} 
-          className="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
-          Cancel
-        </button>
-        <button 
-          type="button" 
-          onClick={handleEditSubmit} 
-          className="inline-flex justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
-          Save Changes
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
-
-{modal.isDeleteOpen && (
-  <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50 p-4">
-    <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
-      <div className="p-6">
-        <div className="flex items-start">
-          <div className="flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
-            <FaExclamationTriangle className="h-5 w-5 text-red-600" />
-          </div>
-          <div className="ml-4">
-            <h3 className="text-lg font-medium text-gray-900">Delete category</h3>
-            <div className="mt-2">
-              <p className="text-sm text-gray-500">
-                Are you sure you want to delete <span className="font-semibold">{modal.categoryToDelete?.name}</span>? 
-                This action cannot be undone.
-              </p>
+              <div className="px-6 py-4 bg-gray-50 flex justify-end space-x-3">
+                <button type="button" onClick={() => setModal((prev) => ({ ...prev, isEditOpen: false }))} className="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                  Cancel
+                </button>
+                <button type="button" onClick={handleEditSubmit} className="inline-flex justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                  Save Changes
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-      <div className="px-6 py-4 bg-gray-50 flex justify-end space-x-3">
-        <button
-          type="button"
-          onClick={() => setModal((prev) => ({ ...prev, isDeleteOpen: false }))}
-          className="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
-          Cancel
-        </button>
-        <button
-          type="button"
-          onClick={handleDeleteCategory}
-          className="inline-flex justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-        >
-          Delete
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+        )}
+
+        {modal.isDeleteOpen && (
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+              <div className="p-6">
+                <div className="flex items-start">
+                  <div className="flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                    <FaExclamationTriangle className="h-5 w-5 text-red-600" />
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-lg font-medium text-gray-900">Delete category</h3>
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-500">
+                        Are you sure you want to delete <span className="font-semibold">{modal.categoryToDelete?.name}</span>? This action cannot be undone.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="px-6 py-4 bg-gray-50 flex justify-end space-x-3">
+                <button type="button" onClick={() => setModal((prev) => ({ ...prev, isDeleteOpen: false }))} className="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                  Cancel
+                </button>
+                <button type="button" onClick={handleDeleteCategory} className="inline-flex justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </Layout>
   );

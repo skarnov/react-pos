@@ -166,15 +166,20 @@ export const deleteCategory = async (categoryId) => {
   }
 };
 
-export const fetchProducts = async (data) => {
+export const fetchProducts = async ({ page = 1, per_page = 10, search = "" }) => {
   try {
-    const response = await axiosInstance.post("/product", data);
+    const response = await axiosInstance.get("/product", {
+      params: {
+        page,
+        per_page,
+        search, // Send the search query to backend
+      },
+    });
     return response;
   } catch (error) {
     throw new Error(error?.response?.data?.message || "Error fetching products");
   }
 };
-
 export const saveProduct = async (data) => {
   try {
     const response = await axiosInstance.post("/save-product", data);

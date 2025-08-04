@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { saveStock, fetchProducts } from "../api/axios";
 import Layout from "../layout/Layout";
@@ -16,6 +16,7 @@ const AddStock = () => {
   });
 
   const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
@@ -23,6 +24,21 @@ const AddStock = () => {
   const [search, setSearch] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
+  const dropdownRef = useRef(null);
+
+  // Handle clicks outside the dropdown to close it
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     const calculateCartTotal = () => {
@@ -41,6 +57,7 @@ const AddStock = () => {
       try {
         const response = await fetchProducts();
         setProducts(response.data.products || []);
+        setFilteredProducts(response.data.products || []);
       } catch (err) {
         console.error("Error fetching products:", err.message);
         setError(err.message || "Failed to load products.");
@@ -58,6 +75,18 @@ const AddStock = () => {
       if (selected) setSearch(selected.name);
     }
   }, [formData.product_id, products]);
+
+  // Filter products based on search input
+  useEffect(() => {
+    if (search) {
+      const filtered = products.filter((p) =>
+        p.name.toLowerCase().includes(search.toLowerCase())
+      );
+      setFilteredProducts(filtered);
+    } else {
+      setFilteredProducts(products);
+    }
+  }, [search, products]);
 
   const handleProductSelect = (product) => {
     setFormData((prev) => ({ ...prev, product_id: product.id }));
@@ -161,21 +190,35 @@ const AddStock = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Left Column */}
                   <div className="space-y-4 md:space-y-6">
-                    <div className="relative">
+                    <div className="relative" ref={dropdownRef}>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Select Product *</label>
-                      <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search products..." onFocus={() => setIsOpen(true)} className="w-full px-3 py-2 md:px-4 md:py-3 border border-gray-300 rounded-md md:rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition bg-white text-gray-900" disabled={loading} />
+                      <input 
+                        type="text" 
+                        value={search} 
+                        onChange={(e) => {
+                          setSearch(e.target.value);
+                          setIsOpen(true);
+                        }} 
+                        placeholder="Search products..." 
+                        onFocus={() => setIsOpen(true)}
+                        className="w-full px-3 py-2 md:px-4 md:py-3 border border-gray-300 rounded-md md:rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition bg-white text-gray-900" 
+                      />
                       {isOpen && (
                         <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                          {products.filter((p) => p.name.toLowerCase().includes(search.toLowerCase())).length > 0 ? (
-                            products
-                              .filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))
-                              .map((product) => (
-                                <div key={product.id} onClick={() => handleProductSelect(product)} className="p-2 md:p-3 cursor-pointer hover:bg-gray-100 text-sm md:text-base">
-                                  {product.name}
-                                </div>
-                              ))
+                          {filteredProducts.length > 0 ? (
+                            filteredProducts.map((product) => (
+                              <div 
+                                key={product.id} 
+                                onClick={() => handleProductSelect(product)} 
+                                className="p-2 md:p-3 cursor-pointer hover:bg-gray-100 text-sm md:text-base"
+                              >
+                                {product.name}
+                              </div>
+                            ))
                           ) : (
-                            <div className="p-2 md:p-3 text-gray-500 text-sm md:text-base">No products found</div>
+                            <div className="p-2 md:p-3 text-gray-500 text-sm md:text-base">
+                              {products.length === 0 ? "No products available" : "No matching products found"}
+                            </div>
                           )}
                         </div>
                       )}
