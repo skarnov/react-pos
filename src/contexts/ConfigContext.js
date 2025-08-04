@@ -11,6 +11,8 @@ const ConfigProvider = ({ children }) => {
     timeFormat: "",
     dateFormat: "",
     currencySign: "",
+    vatPercentage: "",
+    taxPercentage: "",
     successBox: "",
     errorBox: "",
     warningBox: "",
@@ -29,7 +31,7 @@ const ConfigProvider = ({ children }) => {
       try {
         const response = await fetchConfiguration();
         const data = response.data;
-
+        
         setConfig({
           projectName: data.settings.project_name,
           adminEmail: data.settings.admin_email,
@@ -37,6 +39,8 @@ const ConfigProvider = ({ children }) => {
           timeFormat: data.settings.time_format,
           dateFormat: data.settings.date_format,
           currencySign: data.settings.currency_sign,
+          vatPercentage: data.settings.vat_percentage,
+          taxPercentage: data.settings.tax_percentage,
           successBox: data.settings.success_box,
           errorBox: data.settings.error_box,
           warningBox: data.settings.warning_box,

@@ -92,19 +92,25 @@ const CustomerPage = () => {
 
   const filteredCustomers = customers.filter((customer) => customer.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
-  const StatusBadge = ({ status }) => <span className={`px-3 py-1 rounded-full text-xs font-medium ${status === "active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>{status.charAt(0).toUpperCase() + status.slice(1)}</span>;
+  const StatusBadge = ({ status }) => <span className={`px-2 py-1 rounded-full text-xs font-medium ${status === "active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>{status.charAt(0).toUpperCase() + status.slice(1)}</span>;
 
   return (
     <Layout cartTotal={cartTotal}>
-      <div className="min-h-screen bg-white text-gray-900 p-6 md:p-10">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4 md:mb-0">Customer Management</h1>
+      <div className="min-h-screen bg-white text-gray-900 p-4 md:p-6">
+        <div className="w-full">
+          <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:items-center md:justify-between mb-6">
+            <h1 className="text-xl md:text-2xl font-bold text-gray-900">Customer Management</h1>
             <div className="relative w-full md:w-64">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <FaSearch className="text-gray-400" />
               </div>
-              <input type="text" placeholder="Search customers..." className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+              <input 
+                type="text" 
+                placeholder="Search customers..." 
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md md:rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400 text-sm md:text-base" 
+                value={searchTerm} 
+                onChange={(e) => setSearchTerm(e.target.value)} 
+              />
             </div>
           </div>
 
@@ -126,30 +132,30 @@ const CustomerPage = () => {
               </div>
             </div>
           ) : (
-            <div className="bg-white shadow-sm rounded-lg overflow-hidden border border-gray-200">
+            <div className="bg-white shadow-sm rounded-md md:rounded-lg overflow-hidden border border-gray-200">
               {filteredCustomers.length === 0 ? (
-                <div className="p-8 text-center">
+                <div className="p-6 md:p-8 text-center">
                   <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <h3 className="mt-2 text-sm font-medium text-gray-900">No customers found</h3>
-                  <p className="mt-1 text-sm text-gray-500">Try adjusting your search or add a new customer.</p>
+                  <h3 className="mt-2 text-sm md:text-base font-medium text-gray-900">No customers found</h3>
+                  <p className="mt-1 text-xs md:text-sm text-gray-500">Try adjusting your search or add a new customer.</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Name
                         </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Email
                         </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Status
                         </th>
-                        <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th scope="col" className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Actions
                         </th>
                       </tr>
@@ -157,21 +163,29 @@ const CustomerPage = () => {
                     <tbody className="bg-white divide-y divide-gray-200">
                       {filteredCustomers.map((customer) => (
                         <tr key={customer.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap">
+                          <td className="px-4 py-4 whitespace-nowrap">
                             <div className="text-sm font-medium text-gray-900">{customer.name}</div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
+                          <td className="px-4 py-4 whitespace-nowrap">
                             <div className="text-sm text-gray-500">{customer.email}</div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
+                          <td className="px-4 py-4 whitespace-nowrap">
                             <StatusBadge status={customer.status} />
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <button onClick={() => handleEditClick(customer)} className="text-blue-600 hover:text-blue-800 mr-4 inline-flex items-center">
-                              <FaEdit className="mr-1" /> Edit
+                          <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button 
+                              onClick={() => handleEditClick(customer)} 
+                              className="text-blue-600 hover:text-blue-800 mr-3 md:mr-4 inline-flex items-center"
+                            >
+                              <FaEdit className="mr-1 text-xs md:text-sm" /> 
+                              <span className="text-xs md:text-sm">Edit</span>
                             </button>
-                            <button onClick={() => handleDeleteClick(customer)} className="text-red-600 hover:text-red-800 inline-flex items-center">
-                              <FaTrash className="mr-1" /> Delete
+                            <button 
+                              onClick={() => handleDeleteClick(customer)} 
+                              className="text-red-600 hover:text-red-800 inline-flex items-center"
+                            >
+                              <FaTrash className="mr-1 text-xs md:text-sm" /> 
+                              <span className="text-xs md:text-sm">Delete</span>
                             </button>
                           </td>
                         </tr>
@@ -186,12 +200,15 @@ const CustomerPage = () => {
 
         {/* Edit Modal */}
         {isEditModalOpen && (
-          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
-              <div className="p-6">
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+              <div className="p-4 md:p-6">
                 <div className="flex justify-between items-start">
                   <h3 className="text-lg leading-6 font-medium text-gray-900">Edit Customer</h3>
-                  <button onClick={() => setIsEditModalOpen(false)} className="text-gray-400 hover:text-gray-500">
+                  <button 
+                    onClick={() => setIsEditModalOpen(false)} 
+                    className="text-gray-400 hover:text-gray-500"
+                  >
                     <span className="sr-only">Close</span>
                     <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -204,21 +221,38 @@ const CustomerPage = () => {
                     <label htmlFor="name" className="block text-sm font-medium text-gray-700">
                       Name
                     </label>
-                    <input id="name" type="text" value={updatedName} onChange={(e) => setUpdatedName(e.target.value)} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-white text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
+                    <input 
+                      id="name" 
+                      type="text" 
+                      value={updatedName} 
+                      onChange={(e) => setUpdatedName(e.target.value)} 
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-white text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm" 
+                    />
                   </div>
 
                   <div>
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                       Email
                     </label>
-                    <input id="email" type="email" value={updatedEmail} onChange={(e) => setUpdatedEmail(e.target.value)} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-white text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
+                    <input 
+                      id="email" 
+                      type="email" 
+                      value={updatedEmail} 
+                      onChange={(e) => setUpdatedEmail(e.target.value)} 
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-white text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm" 
+                    />
                   </div>
 
                   <div>
                     <label htmlFor="status" className="block text-sm font-medium text-gray-700">
                       Status
                     </label>
-                    <select id="status" value={updatedStatus} onChange={(e) => setUpdatedStatus(e.target.value)} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                    <select 
+                      id="status" 
+                      value={updatedStatus} 
+                      onChange={(e) => setUpdatedStatus(e.target.value)} 
+                      className="mt-1 block w-full pl-3 pr-10 py-2 text-sm border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 rounded-md"
+                    >
                       <option value="active">Active</option>
                       <option value="inactive">Inactive</option>
                     </select>
@@ -227,10 +261,18 @@ const CustomerPage = () => {
               </div>
 
               <div className="px-4 py-3 bg-gray-50 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button type="button" onClick={handleEditSubmit} className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+                <button 
+                  type="button" 
+                  onClick={handleEditSubmit} 
+                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
+                >
                   Save Changes
                 </button>
-                <button type="button" onClick={() => setIsEditModalOpen(false)} className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                <button 
+                  type="button" 
+                  onClick={() => setIsEditModalOpen(false)} 
+                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                >
                   Cancel
                 </button>
               </div>
@@ -240,9 +282,9 @@ const CustomerPage = () => {
 
         {/* Delete Modal */}
         {isDeleteModalOpen && (
-          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
-              <div className="p-6">
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+              <div className="p-4 md:p-6">
                 <div className="flex items-start">
                   <div className="flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mx-auto">
                     <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -258,10 +300,18 @@ const CustomerPage = () => {
                 </div>
               </div>
               <div className="px-4 py-3 bg-gray-50 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button type="button" onClick={handleDeleteCustomer} className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
+                <button 
+                  type="button" 
+                  onClick={handleDeleteCustomer} 
+                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
+                >
                   Delete
                 </button>
-                <button type="button" onClick={() => setIsDeleteModalOpen(false)} className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                <button 
+                  type="button" 
+                  onClick={() => setIsDeleteModalOpen(false)} 
+                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                >
                   Cancel
                 </button>
               </div>
