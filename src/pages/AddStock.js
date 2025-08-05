@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { saveStock, fetchProducts } from "../api/axios";
 import Layout from "../layout/Layout";
 import { FaSave, FaBoxes, FaArrowLeft } from "react-icons/fa";
+import { debounce } from "lodash";
 
 const AddStock = () => {
   const [formData, setFormData] = useState({
@@ -16,15 +17,19 @@ const AddStock = () => {
   });
 
   const [products, setProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [cartTotal, setCartTotal] = useState(0);
   const [search, setSearch] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isFetching, setIsFetching] = useState(false);
+
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
+  const dropdownListRef = useRef(null);
 
   // Handle clicks outside the dropdown to close it
   useEffect(() => {
@@ -50,46 +55,74 @@ const AddStock = () => {
     setCartTotal(total);
   }, []);
 
+  // Fetch products with pagination and search
+  const fetchProductsData = useCallback(async (searchTerm = "", pageNum = 1) => {
+    setIsFetching(true);
+    try {
+      const response = await fetchProducts({
+        per_page: 10,
+        page: pageNum,
+        search: searchTerm,
+      });
+
+      const newProducts = response?.data?.data || [];
+
+      if (pageNum === 1) {
+        setProducts(newProducts);
+      } else {
+        setProducts((prev) => [...prev, ...newProducts]);
+      }
+
+      setHasMore(newProducts.length > 0);
+      setPage(pageNum);
+    } catch (err) {
+      console.error("Error fetching products:", err);
+      setError(err.message || "Failed to load products.");
+    } finally {
+      setIsFetching(false);
+      setLoading(false);
+    }
+  }, []);
+
+  // Initial load and search handler with debounce
   useEffect(() => {
-    const fetchProductData = async () => {
-      setLoading(true);
-      setError("");
-      try {
-        const response = await fetchProducts();
-        setProducts(response.data.products || []);
-        setFilteredProducts(response.data.products || []);
-      } catch (err) {
-        console.error("Error fetching products:", err.message);
-        setError(err.message || "Failed to load products.");
-      } finally {
-        setLoading(false);
+    const debouncedFetch = debounce(() => {
+      fetchProductsData(search, 1);
+    }, 500);
+
+    debouncedFetch();
+    return () => debouncedFetch.cancel();
+  }, [search, fetchProductsData]);
+
+  // Infinite scroll handler
+  useEffect(() => {
+    const dropdownElement = dropdownListRef.current;
+    if (!dropdownElement || !isOpen) return;
+
+    const handleScroll = () => {
+      if (dropdownElement.scrollTop + dropdownElement.clientHeight >= dropdownElement.scrollHeight - 100 && !isFetching && hasMore) {
+        fetchProductsData(search, page + 1);
       }
     };
 
-    fetchProductData();
-  }, []);
+    dropdownElement.addEventListener("scroll", handleScroll);
+    return () => dropdownElement.removeEventListener("scroll", handleScroll);
+  }, [page, hasMore, isFetching, search, isOpen, fetchProductsData]);
 
   useEffect(() => {
     if (formData.product_id) {
       const selected = products.find((product) => product.id === formData.product_id);
-      if (selected) setSearch(selected.name);
+      if (selected) {
+        setSearch(selected.name);
+      }
     }
   }, [formData.product_id, products]);
 
-  // Filter products based on search input
-  useEffect(() => {
-    if (search) {
-      const filtered = products.filter((p) =>
-        p.name.toLowerCase().includes(search.toLowerCase())
-      );
-      setFilteredProducts(filtered);
-    } else {
-      setFilteredProducts(products);
-    }
-  }, [search, products]);
-
   const handleProductSelect = (product) => {
-    setFormData((prev) => ({ ...prev, product_id: product.id }));
+    setFormData((prev) => ({
+      ...prev,
+      product_id: product.id,
+    }));
     setSearch(product.name);
     setIsOpen(false);
   };
@@ -105,20 +138,24 @@ const AddStock = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const form = new FormData();
+    if (!formData.product_id) {
+      setError("Please select a product");
+      return;
+    }
 
-    const getValueOrNull = (value) => (value === undefined || value === "" ? "" : value);
-    form.append("fk_product_id", getValueOrNull(formData.product_id));
-    form.append("batch", getValueOrNull(formData.batch));
-    form.append("lot", getValueOrNull(formData.lot));
-    form.append("quantity", getValueOrNull(formData.quantity));
-    form.append("buy_price", getValueOrNull(formData.buy_price));
-    form.append("sale_price", getValueOrNull(formData.sale_price));
-    form.append("status", getValueOrNull(formData.status));
+    const form = new FormData();
+    form.append("fk_product_id", formData.product_id || "");
+    form.append("batch", formData.batch || "");
+    form.append("lot", formData.lot || "");
+    form.append("quantity", formData.quantity || "");
+    form.append("buy_price", formData.buy_price || "");
+    form.append("sale_price", formData.sale_price || "");
+    form.append("status", formData.status || "active");
 
     try {
       setLoading(true);
       const response = await saveStock(form);
+
       if (response.status === 200 || response.status === 201) {
         setSuccess(true);
         setError(null);
@@ -131,6 +168,7 @@ const AddStock = () => {
           sale_price: "",
           status: "active",
         });
+        setSearch("");
 
         setTimeout(() => {
           setSuccess(false);
@@ -138,6 +176,7 @@ const AddStock = () => {
         }, 3000);
       }
     } catch (err) {
+      console.error("Save error:", err);
       setError(err.message || "Failed to save stock.");
       setSuccess(false);
     } finally {
@@ -156,7 +195,6 @@ const AddStock = () => {
             <h1 className="text-2xl font-bold text-gray-900">Add New Stock</h1>
           </div>
 
-          {/* Success Message */}
           {success && (
             <div className="mb-4 md:mb-6 p-3 md:p-4 bg-green-100 border-l-4 border-green-500 text-green-700 rounded">
               <div className="flex items-center">
@@ -170,7 +208,6 @@ const AddStock = () => {
             </div>
           )}
 
-          {/* Error Message */}
           {error && (
             <div className="mb-4 md:mb-6 p-3 md:p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded">
               <div className="flex items-center">
@@ -188,37 +225,37 @@ const AddStock = () => {
             <div className="p-4 sm:p-6 md:p-8">
               <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Left Column */}
                   <div className="space-y-4 md:space-y-6">
                     <div className="relative" ref={dropdownRef}>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Select Product *</label>
-                      <input 
-                        type="text" 
-                        value={search} 
+                      <input
+                        type="text"
+                        value={search}
                         onChange={(e) => {
                           setSearch(e.target.value);
                           setIsOpen(true);
-                        }} 
-                        placeholder="Search products..." 
-                        onFocus={() => setIsOpen(true)}
-                        className="w-full px-3 py-2 md:px-4 md:py-3 border border-gray-300 rounded-md md:rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition bg-white text-gray-900" 
+                        }}
+                        onClick={() => setIsOpen(true)}
+                        placeholder="Search products..."
+                        className="w-full px-3 py-2 md:px-4 md:py-3 border border-gray-300 rounded-md md:rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition bg-white text-gray-900"
                       />
                       {isOpen && (
-                        <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                          {filteredProducts.length > 0 ? (
-                            filteredProducts.map((product) => (
-                              <div 
-                                key={product.id} 
-                                onClick={() => handleProductSelect(product)} 
-                                className="p-2 md:p-3 cursor-pointer hover:bg-gray-100 text-sm md:text-base"
-                              >
-                                {product.name}
-                              </div>
-                            ))
+                        <div ref={dropdownListRef} className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                          {products.length > 0 ? (
+                            <>
+                              {products.map((product, index) => (
+                                <div
+                                  key={`${product.id}-${product.name}-${index}`}
+                                  onClick={() => handleProductSelect(product)}
+                                  className={`p-2 cursor-pointer hover:bg-gray-100 ${formData.product_id === product.id ? "bg-indigo-50" : ""}`}>
+                                  {product.name}
+                                  {product.sku && <span className="text-xs text-gray-500 ml-2">SKU: {product.sku}</span>}
+                                </div>
+                              ))}
+                              {isFetching && <div className="p-2 text-center text-gray-500">Loading more products...</div>}
+                            </>
                           ) : (
-                            <div className="p-2 md:p-3 text-gray-500 text-sm md:text-base">
-                              {products.length === 0 ? "No products available" : "No matching products found"}
-                            </div>
+                            <div className="p-2 md:p-3 text-gray-500 text-sm md:text-base">{isFetching ? "Loading..." : "No products found"}</div>
                           )}
                         </div>
                       )}
@@ -235,7 +272,6 @@ const AddStock = () => {
                     </div>
                   </div>
 
-                  {/* Right Column */}
                   <div className="space-y-4 md:space-y-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Quantity *</label>

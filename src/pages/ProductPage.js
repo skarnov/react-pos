@@ -273,7 +273,7 @@ const ProductPage = () => {
 
   return (
     <Layout cartTotal={state.cartTotal}>
-      <div className="min-h-screen bg-gray-50 p-4 md:p-6">
+      <div className="min-h-screen bg-white p-4 md:p-6">
         {/* Notification */}
         {state.notification && (
           <div className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 flex items-center max-w-md ${state.notification.type === "success" ? "bg-green-50 text-green-800 border border-green-200" : state.notification.type === "error" ? "bg-red-50 text-red-800 border border-red-200" : "bg-blue-50 text-blue-800 border border-blue-200"}`}>

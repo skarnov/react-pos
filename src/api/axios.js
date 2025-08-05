@@ -172,7 +172,7 @@ export const fetchProducts = async ({ page = 1, per_page = 10, search = "" }) =>
       params: {
         page,
         per_page,
-        search, // Send the search query to backend
+        search,
       },
     });
     return response;
@@ -180,6 +180,7 @@ export const fetchProducts = async ({ page = 1, per_page = 10, search = "" }) =>
     throw new Error(error?.response?.data?.message || "Error fetching products");
   }
 };
+
 export const saveProduct = async (data) => {
   try {
     const response = await axiosInstance.post("/save-product", data);
@@ -192,7 +193,6 @@ export const saveProduct = async (data) => {
 
 export const updateProduct = async (id, productData) => {
   try {
-    // Validate required fields
     const requiredFields = ["name", "sku", "barcode", "status"];
     const missingFields = requiredFields.filter((field) => !productData[field]);
 
@@ -202,7 +202,6 @@ export const updateProduct = async (id, productData) => {
 
     const formData = new FormData();
 
-    // Append all fields
     Object.entries(productData).forEach(([key, value]) => {
       if (value !== null && value !== undefined) {
         formData.append(key, value);
@@ -235,9 +234,15 @@ export const deleteProduct = async (productId) => {
   }
 };
 
-export const fetchStocks = async (data) => {
+export const fetchStocks = async ({ page = 1, per_page = 10, search = "" }) => {
   try {
-    const response = await axiosInstance.post("/stock", data);
+    const response = await axiosInstance.get("/stock", {
+      params: {
+        page,
+        per_page,
+        search,
+      },
+    });
     return response;
   } catch (error) {
     throw new Error(error?.response?.data?.message || "Error fetching stocks");
@@ -282,13 +287,18 @@ export const deleteStock = async (stockId) => {
   }
 };
 
-export const fetchSale = async () => {
+export const fetchSale = async ({ page = 1, per_page = 10, search = "" }) => {
   try {
-    const response = await axiosInstance.post("/sale");
+    const response = await axiosInstance.get("/sale", {
+      params: {
+        page,
+        per_page,
+        search,
+      },
+    });
     return response;
   } catch (error) {
-    console.error("Fetch Sale Error:", error);
-    throw new Error(error?.response?.data?.message || "Error fetching sales");
+    throw new Error(error?.response?.data?.message || "Error fetching sale");
   }
 };
 

@@ -1,25 +1,22 @@
 import React, { useState, useEffect } from "react";
 import Layout from "../layout/Layout";
-import { fetchStocks, updateStock, deleteStock } from "../api/axios";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { fetchStocks } from "../api/axios";
+import { FaChevronLeft, FaChevronRight, FaSearch, FaBox } from "react-icons/fa";
 import { useConfig } from "../contexts/ConfigContext";
 
 const StockPage = () => {
   const { config } = useConfig();
-  const [stocks, setStocks] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [cartTotal, setCartTotal] = useState(0);
-
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [stockToDelete, setStockToDelete] = useState(null);
-  const [stockToEdit, setStockToEdit] = useState(null);
-
-  const [updatedBatch, setUpdatedBatch] = useState("");
-  const [updatedLot, setUpdatedLot] = useState("");
-  const [updatedStatus, setUpdatedStatus] = useState("");
+  const [state, setState] = useState({
+    stocks: [],
+    loading: true,
+    error: "",
+    currentPage: 1,
+    lastPage: 1,
+    perPage: 10,
+    total: 0,
+    cartTotal: 0,
+    searchTerm: "",
+  });
 
   // Calculate the cart total from localStorage
   useEffect(() => {
@@ -29,185 +26,224 @@ const StockPage = () => {
     };
 
     const total = parseFloat(calculateCartTotal());
-    setCartTotal(total);
+    setState((prev) => ({ ...prev, cartTotal: total }));
   }, []);
 
+  // Debounce search
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setState((prev) => ({ ...prev, currentPage: 1 }));
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [state.searchTerm]);
+
+  // Fetch data
   useEffect(() => {
     const fetchStockData = async () => {
-      setLoading(true);
-      setError("");
+      setState((prev) => ({ ...prev, loading: true, error: "" }));
       try {
-        const response = await fetchStocks();
-        setStocks(response.data.stocks || []);
+        const response = await fetchStocks({
+          page: state.currentPage,
+          per_page: state.perPage,
+          search: state.searchTerm,
+        });
+
+        setState((prev) => ({
+          ...prev,
+          stocks: response.data?.data || [],
+          currentPage: response.data?.current_page || 1,
+          lastPage: response.data?.last_page || 1,
+          total: response.data?.total || 0,
+          loading: false,
+        }));
       } catch (err) {
-        console.error("Error fetching stocks:", err.message);
-        setError(err.message || "Failed to load stocks.");
-      } finally {
-        setLoading(false);
+        setState((prev) => ({
+          ...prev,
+          error: err.message || "Failed to load stocks",
+          loading: false,
+        }));
       }
     };
 
     fetchStockData();
-  }, []);
+  }, [state.currentPage, state.perPage, state.searchTerm]);
 
-  const handleDeleteClick = (stock) => {
-    setStockToDelete(stock);
-    setIsDeleteModalOpen(true);
+  // Pagination and search
+  const handlePageChange = (page) => {
+    setState((prev) => ({ ...prev, currentPage: page }));
   };
 
-  const handleDeleteStock = async () => {
-    if (!stockToDelete) return;
+  const handlePerPageChange = (e) => {
+    setState((prev) => ({
+      ...prev,
+      perPage: Number(e.target.value),
+      currentPage: 1,
+    }));
+  };
 
-    try {
-      await deleteStock(stockToDelete.id);
-      setStocks((prev) => prev.filter((stock) => stock.id !== stockToDelete.id));
-      alert("Stock deleted successfully.");
-      setIsDeleteModalOpen(false);
-    } catch (err) {
-      console.error("Error deleting stock:", err.message);
-      alert(err.message || "Failed to delete stock.");
+  const handleSearchChange = (e) => {
+    setState((prev) => ({ ...prev, searchTerm: e.target.value }));
+  };
+
+  // UI Components
+  const StatusBadge = ({ status }) => <span className={`px-2.5 py-1 text-xs font-medium rounded-full ${status === "active" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}>{status.charAt(0).toUpperCase() + status.slice(1)}</span>;
+
+  const Pagination = () => {
+    const pageNumbers = [];
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, state.currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(state.lastPage, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
     }
-  };
 
-  const handleEditClick = (stock) => {
-    setStockToEdit(stock);
-    setUpdatedBatch(stock.batch);
-    setUpdatedLot(stock.lot);
-    setUpdatedStatus(stock.status);
-    setIsEditModalOpen(true);
-  };
-
-  const handleEditSubmit = async () => {
-    if (!stockToEdit) return;
-
-    try {
-      const updatedStock = {
-        id: stockToEdit.id,
-        batch: updatedBatch,
-        lot: updatedLot,
-        status: updatedStatus,
-      };
-      await updateStock(updatedStock);
-      setStocks((prev) => prev.map((s) => (s.id === updatedStock.id ? { ...s, ...updatedStock } : s)));
-      setIsEditModalOpen(false);
-    } catch (err) {
-      console.error("Error updating stock:", err.message);
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
     }
-  };
 
-  const filteredStocks = stocks.filter((stock) => stock.name.toLowerCase().includes(searchTerm.toLowerCase()));
-
-  return (
-    <Layout cartTotal={cartTotal}>
-      <div className="min-h-screen bg-gray-100 p-8">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">Stocks</h2>
-
-        {/* Search Bar */}
-        <div className="mb-6">
-          <input type="text" placeholder="Search stocks..." className="w-full p-3 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-600" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+    return (
+      <div className="flex flex-col sm:flex-row items-center justify-between px-4 py-3 border-t border-gray-200 gap-4">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center">
+            <span className="text-sm text-gray-600 mr-2">Show:</span>
+            <select value={state.perPage} onChange={handlePerPageChange} className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+              {[5, 10, 15, 20, 25].map((num) => (
+                <option key={num} value={num}>
+                  {num}
+                </option>
+              ))}
+            </select>
+          </div>
+          <p className="text-sm text-gray-600 hidden sm:block">
+            Showing <span className="font-medium">{(state.currentPage - 1) * state.perPage + 1}</span> to <span className="font-medium">{Math.min(state.currentPage * state.perPage, state.total)}</span> of <span className="font-medium">{state.total}</span> items
+          </p>
         </div>
 
-        {/* Stock List */}
-        {loading ? (
-          <p>Loading stocks...</p>
-        ) : error ? (
-          <p className="text-red-500">{error}</p>
-        ) : (
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-            {filteredStocks.length === 0 ? (
-              <p className="p-6 text-gray-600">No stock found.</p>
-            ) : (
-              <table className="w-full text-left">
-                <thead className="bg-gray-200">
-                  <tr>
-                    <th className="border p-2">Stock Name</th>
-                    <th className="border p-2">Batch</th>
-                    <th className="border p-2">Lot</th>
-                    <th className="border p-2">Quantity</th>
-                    <th className="border p-2">Buy Price</th>
-                    <th className="border p-2">Sale Price</th>
-                    <th className="border p-2">Status</th>
-                    <th className="border p-2">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredStocks.map((stock) => (
-                    <tr key={stock.id} className="border">
-                      <td className="border p-2">{stock.name}</td>
-                      <td className="border p-2">{stock.batch}</td>
-                      <td className="border p-2">{stock.lot}</td>
-                      <td className="border p-2">{stock.quantity}</td>
-                      <td className="border p-2">{config.currencySign}{stock.buy_price}</td>
-                      <td className="border p-2">{config.currencySign}{stock.sale_price}</td>
-                      <td className="border p-2 capitalize">{stock.status}</td>
-                      <td className="py-3 px-4 flex items-center space-x-2">
-                        {/* Edit Button */}
-                        <button type="button" onClick={() => handleEditClick(stock)} className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 flex items-center">
-                          <FaEdit className="mr-2" />
-                          Edit
-                        </button>
-                        {/* Delete Button */}
-                        <button type="button" onClick={() => handleDeleteClick(stock)} className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900 flex items-center">
-                          <FaTrash className="mr-2" />
-                          Delete
-                        </button>
-                      </td>
+        <div className="flex items-center gap-2">
+          <button onClick={() => handlePageChange(state.currentPage - 1)} disabled={state.currentPage === 1} className={`p-2 border rounded-md ${state.currentPage === 1 ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-white text-gray-700 hover:bg-gray-50"}`}>
+            <FaChevronLeft className="h-4 w-4" />
+          </button>
+
+          <div className="flex gap-1">
+            {pageNumbers.map((page) => (
+              <button key={page} onClick={() => handlePageChange(page)} className={`w-10 h-10 flex items-center justify-center text-sm font-medium rounded-md ${page === state.currentPage ? "bg-blue-600 text-white" : "border border-gray-300 text-gray-700 hover:bg-gray-50"}`}>
+                {page}
+              </button>
+            ))}
+          </div>
+
+          <button onClick={() => handlePageChange(state.currentPage + 1)} disabled={state.currentPage === state.lastPage} className={`p-2 border rounded-md ${state.currentPage === state.lastPage ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-white text-gray-700 hover:bg-gray-50"}`}>
+            <FaChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <Layout cartTotal={state.cartTotal}>
+      <div className="min-h-screen bg-white p-4 md:p-6">
+        {/* Page Header */}
+        <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800">Stock Inventory</h1>
+            <p className="text-gray-600">Manage your stock items</p>
+          </div>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <FaSearch className="text-gray-400" />
+            </div>
+            <input type="text" placeholder="Search stocks..." className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 w-full" value={state.searchTerm} onChange={handleSearchChange} />
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          {state.loading ? (
+            <div className="flex justify-center items-center p-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+          ) : state.error ? (
+            <div className="p-4 bg-red-50 text-red-700 rounded flex items-center">
+              <FaBox className="mr-2" />
+              {state.error}
+            </div>
+          ) : state.stocks.length === 0 ? (
+            <div className="text-center p-12">
+              <div className="mx-auto h-24 w-24 text-gray-400 mb-4">
+                <FaBox className="w-full h-full" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900">No stock items found</h3>
+              <p className="mt-1 text-sm text-gray-500">Try adjusting your search</p>
+            </div>
+          ) : (
+            <>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Product
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Batch
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Lot
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Quantity
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Buy Price
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Sale Price
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Status
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
-        )}
-
-        {/* Edit Modal */}
-        {isEditModalOpen && (
-          <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
-            <div className="bg-white p-8 rounded-lg">
-              <h2 className="text-2xl font-bold mb-4">Edit Stock</h2>
-              <label className="block mb-2">Batch</label>
-              <input type="text" value={updatedBatch} onChange={(e) => setUpdatedBatch(e.target.value)} className="w-full border p-2 rounded mb-4" />
-              <label className="block mb-2">Lot</label>
-              <input type="text" value={updatedLot} onChange={(e) => setUpdatedLot(e.target.value)} className="w-full border p-2 rounded mb-4" />
-              <label className="block mb-2">Status</label>
-              <select value={updatedStatus} onChange={(e) => setUpdatedStatus(e.target.value)} className="w-full border p-2 rounded mb-4">
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-              </select>
-              <div className="flex justify-end space-x-4">
-                <button onClick={() => setIsEditModalOpen(false)} className="text-gray-600">
-                  Cancel
-                </button>
-                <button onClick={handleEditSubmit} className="bg-blue-600 text-white px-4 py-2 rounded">
-                  Save
-                </button>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {state.stocks.map((stock) => (
+                      <tr key={stock.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="ml-4">
+                              <div className="font-medium text-gray-900">{stock.product_name}</div>
+                              <div className="text-sm text-gray-500">ID: {stock.id}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{stock.batch || "-"}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{stock.lot || "-"}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{stock.quantity}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {config.currencySign}
+                          {stock.buy_price}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {config.currencySign}
+                          {stock.sale_price}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <StatusBadge status={stock.status} />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            </div>
-          </div>
-        )}
 
-        {/* Delete Modal */}
-        {isDeleteModalOpen && (
-          <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
-            <div className="bg-white p-8 rounded-lg w-96">
-              <h2 className="text-2xl font-bold mb-6">Delete Stock</h2>
-              <p>Are you sure you want to delete this stock?</p>
-
-              {/* Horizontal Bar */}
-              <hr className="my-3 border-t border-gray-300" />
-
-              {/* Buttons */}
-              <div className="flex justify-end space-x-4">
-                <button onClick={() => setIsDeleteModalOpen(false)} className="text-gray-600 hover:text-gray-800 px-4 py-2 rounded-md">
-                  Cancel
-                </button>
-                <button onClick={handleDeleteStock} className="text-white bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md">
-                  Delete
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+              <Pagination />
+            </>
+          )}
+        </div>
       </div>
     </Layout>
   );
